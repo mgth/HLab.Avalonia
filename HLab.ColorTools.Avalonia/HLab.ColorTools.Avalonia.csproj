@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HLab.ColorTools\HLab.ColorTools.csproj" />
+    <ProjectReference Include="..\..\HLab.Core\HLab.ColorTools\HLab.ColorTools.csproj" />
   </ItemGroup>
 
 </Project>

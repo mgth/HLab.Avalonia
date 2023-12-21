@@ -51,6 +51,7 @@
                   DataValidationErrors.Errors="{TemplateBinding (DataValidationErrors.Errors)}"
                   TextWrapping="NoWrap"
                   HorizontalContentAlignment="Right"
+                  VerticalContentAlignment="Center"
                   FontSize="{TemplateBinding FontSize}"
                   />
 
