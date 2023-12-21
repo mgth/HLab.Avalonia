@@ -21,7 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controls\NewFolder\" />
+    <ProjectReference Include="..\..\HLab.Core\HLab.Base\HLab.Base.csproj" />
+    <ProjectReference Include="..\HLab.ColorTools.Avalonia\HLab.ColorTools.Avalonia.csproj" />
   </ItemGroup>
 
 </Project>
