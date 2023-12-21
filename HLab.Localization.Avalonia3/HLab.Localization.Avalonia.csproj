@@ -15,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Core\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
     <ProjectReference Include="..\HLab.Base.Avalonia\HLab.Base.Avalonia.csproj" />
     <ProjectReference Include="..\HLab.Icons.Avalonia\HLab.Icons.Avalonia.csproj" />
-    <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
   </ItemGroup>
 
   <ItemGroup>

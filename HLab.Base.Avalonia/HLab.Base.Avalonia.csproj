@@ -16,12 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
-    <ProjectReference Include="..\HLab.ColorTools.Avalonia\HLab.ColorTools.Avalonia.csproj" />
+    <Folder Include="Controls\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controls\NewFolder\" />
+    <ProjectReference Include="..\..\HLab.Core\HLab.Base\HLab.Base.csproj" />
+    <ProjectReference Include="..\HLab.ColorTools.Avalonia\HLab.ColorTools.Avalonia.csproj" />
   </ItemGroup>
 
 </Project>
