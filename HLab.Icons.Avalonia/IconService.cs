@@ -89,13 +89,17 @@ public class IconService : Service, IIconService
 
         foreach (var p in paths.Reverse())
         {
+            var pathOrFallBack = p.Split("?");
+            var fallBack = pathOrFallBack.Length>1?pathOrFallBack[1]:"icons/default";
+            var main = pathOrFallBack[0];
+
             if (icon == null)
             {
-                icon = (Control)await GetSingleIconAsync(p,foreground);
+                icon = (Control)await GetSingleIconAsync(main,fallBack, foreground);
                 continue;
             }
 
-            var i = (Control)await GetSingleIconAsync(p, foreground);
+            var i = (Control)await GetSingleIconAsync(main,fallBack, foreground);
 
             icon.SetValue(Grid.ColumnProperty, 1);
             icon.SetValue(Grid.RowProperty, 1);
@@ -199,13 +203,19 @@ public class IconService : Service, IIconService
         return null;
     }
 
-    async Task<object> GetSingleIconAsync(string path, uint foreground = 0)
+    async Task<object> GetSingleIconAsync(string path, string fallBack, uint foreground = 0)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
 
         if (_cache.TryGetValue(path.Trim().ToLower(), out var iconProvider))
         {
             var icon = await iconProvider.GetAsync(foreground).ConfigureAwait(true);
+            return icon;
+        }
+
+        if (_cache.TryGetValue(fallBack.Trim().ToLower(), out var fallbackProvider))
+        {
+            var icon = await fallbackProvider.GetAsync(foreground).ConfigureAwait(true);
             return icon;
         }
 
