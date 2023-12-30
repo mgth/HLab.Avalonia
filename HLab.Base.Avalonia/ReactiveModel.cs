@@ -57,9 +57,13 @@ public abstract class ReactiveModel : ReactiveObject, IDisposable
         return true;
     }
 
+    public virtual void OnDispose()
+    {
+    }
 
     public void Dispose()
     {
+        OnDispose();
         Disposer.Dispose();
     }
 }
