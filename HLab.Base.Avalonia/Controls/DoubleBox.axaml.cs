@@ -70,6 +70,11 @@ public class DoubleBox : TemplatedControl
     public static readonly StyledProperty<int> DecimalsProperty = 
         AvaloniaProperty.Register<DoubleBox, int>(nameof(Decimals), 2);
 
+    /// <summary>
+    /// Defines the <see cref="Decimals"/> property.
+    /// </summary>
+    public static readonly StyledProperty<bool> UpdateOnChangeProperty = 
+        AvaloniaProperty.Register<DoubleBox, bool>(nameof(UpdateOnChange), false);
 
     /// <summary>
     /// Gets or sets the value.
@@ -96,6 +101,15 @@ public class DoubleBox : TemplatedControl
     {
         get => GetValue(DecimalsProperty);
         set => SetValue(DecimalsProperty, value);
+    }
+
+    /// <summary>
+    /// Update value on key pressed not waiting for lost focus or enter
+    /// </summary>
+    public bool UpdateOnChange
+    {
+        get => GetValue(UpdateOnChangeProperty);
+        set => SetValue(UpdateOnChangeProperty, value);
     }
 
     /// <summary>
@@ -144,6 +158,7 @@ public class DoubleBox : TemplatedControl
         {
             TextBox.KeyDown -= TextBox_KeyDown;
             TextBox.GotFocus -= TextBox_GotFocus;
+            TextBox.LostFocus -= TextBox_LostFocus;
         }
 
         TextBox = e.NameScope.Find<TextBox>("PART_TextBox");
@@ -151,6 +166,7 @@ public class DoubleBox : TemplatedControl
         {
             TextBox.KeyDown += TextBox_KeyDown;
             TextBox.GotFocus += TextBox_GotFocus;
+            TextBox.LostFocus += TextBox_LostFocus;
         }
 
         if (Spinner != null)
@@ -162,6 +178,12 @@ public class DoubleBox : TemplatedControl
         }
 
         FormatValue();
+    }
+
+    void TextBox_LostFocus(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if(TextBox?.Text == null) return;
+        Value = double.Parse(TextBox.Text, CultureInfo.CurrentCulture);
     }
 
     void TextBox_GotFocus(object? sender, GotFocusEventArgs e)
@@ -213,20 +235,22 @@ public class DoubleBox : TemplatedControl
         switch (k)
         {
             case ActualKey.Enter or ActualKey.Tab:
-                
-                var next = KeyboardNavigationHandler.GetNext(this, NavigationDirection.Next);
-                if (next == null) return true;
 
-                next.Focus(NavigationMethod.Directional);
+                Value = double.Parse(TextBox.Text, CultureInfo.CurrentCulture);
+
+                var next = KeyboardNavigationHandler.GetNext(this, NavigationDirection.Next);
+
+                next?.Focus(NavigationMethod.Directional);
 
                 return true;
                 
             case ActualKey.ShiftTab:
+
+                Value = double.Parse(TextBox.Text, CultureInfo.CurrentCulture);
                 
                 var previous = KeyboardNavigationHandler.GetNext(this, NavigationDirection.Previous);
-                if (previous == null) return true;
 
-                previous.Focus(NavigationMethod.Directional);
+                previous?.Focus(NavigationMethod.Directional);
                 return true;
                 
             case ActualKey.Left:
@@ -273,6 +297,7 @@ public class DoubleBox : TemplatedControl
             case ActualKey.Delete:
                 TextBox.Text = TextBox.Text.Remove(TextBox.SelectionStart, 1);
                 return true;
+
         }
 
         var c = GetChar(k);
@@ -296,7 +321,14 @@ public class DoubleBox : TemplatedControl
 
         var start = TextBox.SelectionStart;
 
-        Value = double.Parse(content, CultureInfo.CurrentCulture);
+        if (UpdateOnChange)
+        {
+            Value = double.Parse(content, CultureInfo.CurrentCulture);
+        }
+        else
+        {
+            TextBox.Text = content;
+        }
 
         TextBox.SelectionEnd = TextBox.SelectionStart = start+1;
 
