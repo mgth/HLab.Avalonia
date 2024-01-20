@@ -37,12 +37,18 @@ public class MultiScaleConverter : IMultiValueConverter
 
         var v = vs.Min();
 
-        var scale = double.Parse((string)parameter, CultureInfo.InvariantCulture);
+        if (parameter is not string s) return null;
+        var p = s.Split('|');
+
+        var scale = double.Parse(p[0], CultureInfo.InvariantCulture);
         var result = v * scale;
 
         if (double.IsNaN(result) || double.IsInfinity(result)) result = 0.1;
-        else if (result < 0.1) result = 0.1;
-        else if (result > 35791) result = 35791;
+
+        var min = (p.Length > 1)?double.Parse(p[1], CultureInfo.InvariantCulture):0.1;
+        var max = (p.Length > 2)?double.Parse(p[2], CultureInfo.InvariantCulture):35791;
+
+        result = Math.Min(Math.Max(result, min), max);
 
         if(targetType == typeof(CornerRadius))
             return new CornerRadius(result);

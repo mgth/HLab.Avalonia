@@ -30,6 +30,14 @@ namespace HLab.Mvvm.Avalonia.Converters;
 
 public class ScaleConverter : IValueConverter
 {
+    /// <summary>
+    /// Convert a value to a scaled value
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="targetType"></param>
+    /// <param name="parameter">Scale|MinValue|MaxValue</param>
+    /// <param name="culture"></param>
+    /// <returns></returns>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         var v = value switch
