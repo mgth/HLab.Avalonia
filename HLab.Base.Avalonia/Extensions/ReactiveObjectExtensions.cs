@@ -50,6 +50,23 @@ namespace HLab.Base.Avalonia.Extensions
             }
             return backingField;
         }
+        //public static TRet? LazyGet<TObj, TRet>(
+        //    this TObj @this,
+        //    ref TRet? backingField,
+        //    Func<TObj,TRet> setter
+        //)
+        //    where TObj : IReactiveObject
+        //    where TRet : class
+        //{
+        //    if (backingField == null)
+        //    {
+        //        Task.Run(() =>
+        //        {
+        //            @this.RaiseAndSetIfChanged(ref backingField, setter(@this));
+        //        });
+        //    }
+        //    return backingField;
+        //}
 
     }
 }
