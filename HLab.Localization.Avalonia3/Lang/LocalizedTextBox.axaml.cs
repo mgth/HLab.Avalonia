@@ -5,6 +5,7 @@ using HLab.Base.Extensions;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Data;
 using HLab.Mvvm.Annotations;
 using HLab.Base.Avalonia.DependencyHelpers;
 
@@ -41,7 +42,7 @@ public partial class LocalizedTextBox : UserControl
 
     public static readonly StyledProperty<string> TextProperty =
         H.Property<string>()
-            .BindsTwoWayByDefault
+            .BindModeDefault(BindingMode.TwoWay)
             .OnChanged(async (e,a) =>
             {
                 var localize = e.GetValue(Localize.LocalizationServiceProperty);
