@@ -1,9 +1,11 @@
 ﻿#nullable enable
 using System.Management;
 using System.Security.Principal;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
+using Avalonia.Platform;
 using HLab.ColorTools.Avalonia;
 using Microsoft.Win32;
 
@@ -48,25 +50,33 @@ public class ThemeService
     {
         UnsetAuto();
 
-        var currentUser = WindowsIdentity.GetCurrent();
-        if (currentUser.User == null) return;
-
-        var query = @$"SELECT * FROM RegistryValueChangeEvent WHERE Hive = 'HKEY_USERS' AND KeyPath = '{currentUser.User.Value}\\{REGISTRY_KEY_PATH.Replace(@"\", @"\\")}' AND ValueName = '{REGISTRY_VALUE_NAME}'";
-
-        try
+        if (OperatingSystem.IsWindows())
         {
-            _watcher = new ManagementEventWatcher(query);
-            _watcher.EventArrived += _watcher_EventArrived;
+            try
+            {
+                var currentUser = WindowsIdentity.GetCurrent();
+                if (currentUser.User == null) return;
 
-            // Start listening for events
-            _watcher.Start();
+                var query = @$"SELECT * FROM RegistryValueChangeEvent WHERE Hive = 'HKEY_USERS' AND KeyPath = '{currentUser.User.Value}\\{REGISTRY_KEY_PATH.Replace(@"\", @"\\")}' AND ValueName = '{REGISTRY_VALUE_NAME}'";
+
+                _watcher = new ManagementEventWatcher(query);
+                _watcher.EventArrived += _watcher_EventArrived;
+
+                // Start listening for events
+                _watcher.Start();
+            }
+            catch (Exception ex)
+            {
+                // This can fail on Windows 7
+            }
+            
+            SetTheme(GetWindowsTheme());
         }
-        catch (Exception)
+        
+        else if (OperatingSystem.IsLinux())
         {
-            // This can fail on Windows 7
+            SetTheme(GetLinuxTheme());
         }
-
-        SetTheme(GetWindowsTheme());
     }
 
     void _watcher_EventArrived(object sender, EventArrivedEventArgs e)
@@ -132,6 +142,12 @@ public class ThemeService
         {
             return registryValue > 0 ? WindowsTheme.Light : WindowsTheme.Dark;
         }
+        return WindowsTheme.Light;
+    }
+    
+    static WindowsTheme GetLinuxTheme()
+    {
+        // TODO Linux
         return WindowsTheme.Light;
     }
 
