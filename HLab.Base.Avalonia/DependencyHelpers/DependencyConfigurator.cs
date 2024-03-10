@@ -28,7 +28,7 @@ public interface IDependencyPropertyConfigurator<TClass, TValue>
     IDependencyPropertyConfiguratorAttached<TClass, TValue> Attached { get; }
 
 
-    IDependencyPropertyConfigurator<TClass, TValue> BindsTwoWayByDefault { get; }
+    IDependencyPropertyConfigurator<TClass, TValue> BindModeDefault(BindingMode mode = BindingMode.TwoWay);
     IDependencyPropertyConfigurator<TClass, TValue> Default(TValue value);
 
     //IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChange<TSender>(Action<TSender, bool> action)
@@ -51,7 +51,7 @@ public interface IDependencyPropertyConfiguratorNotDirect<TClass, TValue>
 
     IDependencyPropertyConfiguratorAttached<TClass, TValue> Attached { get; }
 
-    IDependencyPropertyConfiguratorNotDirect<TClass, TValue> BindsTwoWayByDefault { get; }
+    IDependencyPropertyConfiguratorNotDirect<TClass, TValue> BindModeDefault(BindingMode mode = BindingMode.Default);
     IDependencyPropertyConfiguratorNotDirect<TClass, TValue> Default(TValue value);
 
     //IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChange<TSender>(Action<TSender, bool> action)
@@ -220,7 +220,7 @@ public class DependencyPropertyConfigurator<TClass, TValue> :
 
 
     IDependencyPropertyConfiguratorNotDirect<TClass, TValue> IDependencyPropertyConfiguratorNotDirect<TClass, TValue>
-        .BindsTwoWayByDefault => Do(() => _bindingMode = BindingMode.TwoWay);
+        .BindModeDefault(BindingMode mode) => Do(() => _bindingMode = mode);
 
     IDependencyPropertyConfiguratorAttached<TClass, TValue> IDependencyPropertyConfiguratorAttached<TClass, TValue>
         .Default(TValue value) => Do(() => _defaultValue = value);
@@ -231,7 +231,7 @@ public class DependencyPropertyConfigurator<TClass, TValue> :
     /// <summary>
     ///     The property binds two-way by default.
     /// </summary>
-    public IDependencyPropertyConfigurator<TClass, TValue> BindsTwoWayByDefault => Do(() => _bindingMode = BindingMode.TwoWay);
+    public IDependencyPropertyConfigurator<TClass, TValue> BindModeDefault(BindingMode mode) => Do(() => _bindingMode = mode);
     IDependencyPropertyConfiguratorAttached<TClass, TValue> IDependencyPropertyConfiguratorAttached<TClass, TValue>.BindsTwoWayByDefault => Do(() => _bindingMode = BindingMode.TwoWay);
     IDependencyPropertyConfiguratorDirect<TClass, TValue> IDependencyPropertyConfiguratorDirect<TClass, TValue>.BindsTwoWayByDefault => Do(() => _bindingMode = BindingMode.TwoWay);
 
