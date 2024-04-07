@@ -30,7 +30,9 @@ public interface IDependencyPropertyConfigurator<TClass, TValue>
 
     IDependencyPropertyConfigurator<TClass, TValue> BindModeDefault(BindingMode mode = BindingMode.TwoWay);
     IDependencyPropertyConfigurator<TClass, TValue> Default(TValue value);
-
+    IDependencyPropertyConfigurator<TClass, TValue> Coerce(Func<AvaloniaObject, TValue, TValue> func);
+    IDependencyPropertyConfigurator<TClass, TValue> Coerce(Func<TValue, TValue> func);
+    IDependencyPropertyConfigurator<TClass, TValue> Validate(Func<TValue, bool> func);
     //IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChange<TSender>(Action<TSender, bool> action)
     //    where TSender : AvaloniaObject;
 
@@ -312,7 +314,7 @@ public class DependencyPropertyConfigurator<TClass, TValue> :
     /// </summary>
     /// <param name="func"></param>
     /// <returns></returns>
-    public DependencyPropertyConfigurator<TClass, TValue> Validate(Func<TValue, bool> func)
+    public IDependencyPropertyConfigurator<TClass, TValue> Validate(Func<TValue, bool> func)
     {
         _validate = func;
         return this;
@@ -323,9 +325,14 @@ public class DependencyPropertyConfigurator<TClass, TValue> :
     /// </summary>
     /// <param name="func"></param>
     /// <returns></returns>
-    public DependencyPropertyConfigurator<TClass, TValue> Coerce(Func<AvaloniaObject, TValue, TValue> func)
+    public IDependencyPropertyConfigurator<TClass, TValue> Coerce(Func<AvaloniaObject, TValue, TValue> func)
     {
         _coerce = func;
+        return this;
+    }
+    public IDependencyPropertyConfigurator<TClass, TValue> Coerce(Func<TValue, TValue> func)
+    {
+        _coerce = (a,v) => func(v);
         return this;
     }
 
