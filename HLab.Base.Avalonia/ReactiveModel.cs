@@ -5,7 +5,7 @@ using ReactiveUI;
 
 namespace HLab.Base.Avalonia;
 
-public abstract class ReactiveModel : ReactiveObject, IDisposable
+public abstract class ReactiveModel : ReactiveObject, IDisposable, ISavable
 {
     public DisposeHelper Disposer { get; } = new();
 
@@ -56,6 +56,7 @@ public abstract class ReactiveModel : ReactiveObject, IDisposable
         this.RaisePropertyChanged(propertyName);
         return true;
     }
+
 
     public virtual void OnDispose()
     {
