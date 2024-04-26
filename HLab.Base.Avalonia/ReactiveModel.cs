@@ -41,10 +41,7 @@ public abstract class ReactiveModel : ReactiveObject, IDisposable, ISavable
         TRet newValue,
         [CallerMemberName] string? propertyName = null)
     {
-        if (propertyName is null)
-        {
-            throw new ArgumentNullException(nameof(propertyName));
-        }
+        ArgumentNullException.ThrowIfNull(propertyName);
 
         if (EqualityComparer<TRet>.Default.Equals(backingField, newValue))
         {

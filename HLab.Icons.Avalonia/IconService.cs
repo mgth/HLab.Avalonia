@@ -9,18 +9,19 @@ using HLab.Mvvm.Annotations;
 
 namespace HLab.Icons.Avalonia;
 
-public class IconServiceDesign : IconService
-{
-    public IconServiceDesign()
-    {
-        if(!Design.IsDesignMode) throw new InvalidOperationException("Only for design mode");
-    }
-
-}
 
 
 public class IconService : Service, IIconService
 {
+    public class Design : IconService
+    {
+        public Design()
+        {
+            if(!global::Avalonia.Controls.Design.IsDesignMode) throw new InvalidOperationException("Only for design mode");
+        }
+
+    }
+
     readonly ConcurrentDictionary<string, IIconProvider> _cache = new();
 
     readonly AsyncDictionary<string, object> _templates = new();
