@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using HLab.ColorTools.Avalonia;
 using Microsoft.Win32;
 
@@ -70,18 +71,18 @@ public class ThemeService
                 // This can fail on Windows 7
             }
             
-            SetTheme(GetWindowsTheme());
+            SetTheme(GetWindowsTheme(),false);
         }
         
         else if (OperatingSystem.IsLinux())
         {
-            SetTheme(GetLinuxTheme());
+            SetTheme(GetLinuxTheme(), false);
         }
     }
 
     void _watcher_EventArrived(object sender, EventArrivedEventArgs e)
     {
-        SetTheme(GetWindowsTheme());
+        SetTheme(GetWindowsTheme(), false);
     }
 
     void UnsetAuto()
@@ -104,7 +105,7 @@ public class ThemeService
     }
 
 
-    public void SetTheme(WindowsTheme theme)
+    public void SetTheme(WindowsTheme theme, bool killAuto = true)
     {
         //ThemeManager.Current.SyncTheme(ThemeSyncMode.SyncAll);
 
@@ -113,18 +114,23 @@ public class ThemeService
         {
             case WindowsTheme.Light:
                 //ThemeManager.Current.ChangeTheme(this, "Light.Blue");
-                UnsetAuto();
-                if (_dictionary.MergedDictionaries.Contains(_themeDark)) _dictionary.MergedDictionaries.Remove(_themeDark);
-                if (!_dictionary.MergedDictionaries.Contains(_themeLight))
-                    _dictionary.MergedDictionaries.Add(_themeLight);
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if(killAuto) UnsetAuto();
+                    if (_dictionary.MergedDictionaries.Contains(_themeDark)) _dictionary.MergedDictionaries.Remove(_themeDark);
+                    if (!_dictionary.MergedDictionaries.Contains(_themeLight))
+                        _dictionary.MergedDictionaries.Add(_themeLight);
+                });
                 break;
-
             case WindowsTheme.Dark:
                 //ThemeManager.Current.ChangeTheme(this, "Dark.Blue");
-                UnsetAuto();
-                if (_dictionary.MergedDictionaries.Contains(_themeLight)) _dictionary.MergedDictionaries.Remove(_themeLight);
-                if (!_dictionary.MergedDictionaries.Contains(_themeDark))
-                    _dictionary.MergedDictionaries.Add(_themeDark);
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (killAuto) UnsetAuto();
+                    if (_dictionary.MergedDictionaries.Contains(_themeLight)) _dictionary.MergedDictionaries.Remove(_themeLight);
+                    if (!_dictionary.MergedDictionaries.Contains(_themeDark))
+                        _dictionary.MergedDictionaries.Add(_themeDark);
+                });
                 break;
             case WindowsTheme.Auto:
                 SetAuto();
