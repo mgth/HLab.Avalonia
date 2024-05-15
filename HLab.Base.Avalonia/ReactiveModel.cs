@@ -25,8 +25,6 @@ public abstract class ReactiveModel : ReactiveObject, IDisposable, ISavable
     /// </summary>
     protected bool SetUnsavedValue<TRet>(ref TRet backingField, TRet value, [CallerMemberName] string propertyName = null)
     {
-        using var disposable = DelayChangeNotifications();
-
         if (EqualityComparer<TRet>.Default.Equals(backingField, value)) return false;
 
         this.RaisePropertyChanging(propertyName);
