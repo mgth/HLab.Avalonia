@@ -16,6 +16,13 @@ public static class ViewExtensions
         return @this.DataContext is TViewModel vm  ? vm : default;
     }
 
+
+    public static TViewModel? GetViewModel<TViewModel>(this IView<TViewModel> @this)
+    {
+        if (@this is StyledElement view) return view.DataContext is TViewModel vm ? vm : default;
+        return default;
+    }
+
 }
 
 
