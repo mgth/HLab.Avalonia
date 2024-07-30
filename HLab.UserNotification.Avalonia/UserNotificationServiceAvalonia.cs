@@ -83,13 +83,15 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
     public async Task SetIconAsync(string iconPath, int i)
     {
         var icon = await GetImageAsync(iconPath, i);
+        if(icon!=null)
+        {
+            using var memory = new MemoryStream();
+            icon.Save(memory);
 
-        using var memory = new MemoryStream();
-        icon.Save(memory);
+            memory.Position = 0;
 
-        memory.Position = 0;
-
-        Icon = new WindowIcon(memory);
+            Icon = new WindowIcon(memory);
+        }
     }
 
     public string ToolTipText
