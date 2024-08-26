@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Core\HLab.Base.ReactiveUI\HLab.Base.ReactiveUI.csproj" />
     <ProjectReference Include="..\..\HLab.Core\HLab.Base\HLab.Base.csproj" />
     <ProjectReference Include="..\HLab.ColorTools.Avalonia\HLab.ColorTools.Avalonia.csproj" />
   </ItemGroup>
