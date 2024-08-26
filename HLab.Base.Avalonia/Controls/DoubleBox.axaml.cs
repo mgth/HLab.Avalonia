@@ -43,7 +43,6 @@ enum ActualKey
     Plus,
 }
 
-
 /// <summary>
 /// Control that represents a TextBox with button spinners that allow incrementing and decrementing numeric values.
 /// </summary>
@@ -128,26 +127,35 @@ public class DoubleBox : TemplatedControl
 
         if (change.Property == ValueProperty)
         {
-            FormatValue();
+            SetTextFromValue();
         }
         else if (change.Property == TrailingZerosProperty)
         {
-            FormatValue();
+            SetTextFromValue();
         }
         else if (change.Property == DecimalsProperty)
         {
-            FormatValue();
+            SetTextFromValue();
         }
     }
 
+    void SetValueFromText()
+    {
+       if (TextBox == null) return;
+       if (double.TryParse(TextBox.Text, CultureInfo.CurrentCulture, out var value))
+       {
+          Value = value;
+       }
+       else 
+       {
+          SetTextFromValue();
+       }
+    }
 
-    void FormatValue()
+    void SetTextFromValue()
     {
         if(TextBox == null) return;
-        // 
         var format = TrailingZeros ? "F" + Decimals : "G" + Decimals;
-
-        // set text from value
         TextBox.Text = Value.ToString(format, CultureInfo.CurrentCulture);
     }
 
@@ -177,13 +185,13 @@ public class DoubleBox : TemplatedControl
         {
         }
 
-        FormatValue();
+        SetTextFromValue();
     }
 
     void TextBox_LostFocus(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
         if(TextBox?.Text == null) return;
-        Value = double.Parse(TextBox.Text, CultureInfo.CurrentCulture);
+        SetValueFromText();
     }
 
     void TextBox_GotFocus(object? sender, GotFocusEventArgs e)
@@ -198,7 +206,7 @@ public class DoubleBox : TemplatedControl
         e.Handled = HandleChar(GetActualKey(e.Key));
     }
 
-    bool HandleChar(ActualKey k)
+   bool HandleChar(ActualKey k)
     {
         if (k == ActualKey.None) return true;
         if (TextBox == null) return false;
@@ -236,9 +244,9 @@ public class DoubleBox : TemplatedControl
         {
             case ActualKey.Enter or ActualKey.Tab:
 
-                Value = double.Parse(TextBox.Text, CultureInfo.CurrentCulture);
+                SetValueFromText();
 
-                var next = KeyboardNavigationHandler.GetNext(this, NavigationDirection.Next);
+                var next = KeyboardNavigationHandler.GetNext(TextBox, NavigationDirection.Next);
 
                 next?.Focus(NavigationMethod.Directional);
 
@@ -246,7 +254,7 @@ public class DoubleBox : TemplatedControl
                 
             case ActualKey.ShiftTab:
 
-                Value = double.Parse(TextBox.Text, CultureInfo.CurrentCulture);
+                SetValueFromText();
                 
                 var previous = KeyboardNavigationHandler.GetNext(this, NavigationDirection.Previous);
 
@@ -323,7 +331,7 @@ public class DoubleBox : TemplatedControl
 
         if (UpdateOnChange)
         {
-            Value = double.Parse(content, CultureInfo.CurrentCulture);
+            SetValueFromText();
         }
         else
         {
