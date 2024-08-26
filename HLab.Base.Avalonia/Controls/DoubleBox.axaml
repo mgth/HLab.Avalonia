@@ -50,6 +50,7 @@
                   BorderThickness="0"
                   DataValidationErrors.Errors="{TemplateBinding (DataValidationErrors.Errors)}"
                   TextWrapping="NoWrap"
+				  ScrollViewer.VerticalScrollBarVisibility="Disabled"
                   HorizontalContentAlignment="Right"
                   VerticalContentAlignment="Center"
                   FontSize="{TemplateBinding FontSize}"
