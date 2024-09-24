@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="ReactiveUI" Version="$(ReactiveUiVersion)" />
+    <PackageReference Include="Avalonia" Version="11.1.3" />
+    <PackageReference Include="ReactiveUI" Version="11.1.3" />
     <PackageReference Include="System.Management" Version="9.0.0-preview.6.24327.7" />
   </ItemGroup>
 
