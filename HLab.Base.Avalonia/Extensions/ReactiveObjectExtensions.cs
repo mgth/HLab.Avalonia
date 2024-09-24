@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using ReactiveUI;
+﻿using ReactiveUI;
 
 namespace HLab.Base.Avalonia.Extensions
 {
