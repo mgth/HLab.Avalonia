@@ -10,7 +10,7 @@ public class UiAvaloniaImplementation : IUiPlatformImplementation
 {
     public static void Initialize()
     {
-        UiPlatform.Implementation = new UiAvaloniaImplementation();
+        UiPlatform.Configure(new UiAvaloniaImplementation());
     }
 
     public IOpenFileDialog CreateOpenFileDialog()
@@ -31,5 +31,20 @@ public class UiAvaloniaImplementation : IUiPlatformImplementation
     public async Task InvokeOnUiThreadAsync(Action callback)
     {
         await Dispatcher.UIThread.InvokeAsync(callback);
+    }
+
+    public IGuiTimer CreateGuiTimer()
+    {
+        throw new NotImplementedException();
+    }
+
+    public string? GetClipboardText()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SetClipboardText(string text)
+    {
+        throw new NotImplementedException();
     }
 }
