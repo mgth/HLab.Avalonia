@@ -3,6 +3,7 @@ using HLab.UI;
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using Avalonia;
 
 namespace HLab.Ui.Avalonia;
 
@@ -32,6 +33,12 @@ public class UiAvaloniaImplementation : IUiPlatformImplementation
     {
         await Dispatcher.UIThread.InvokeAsync(callback);
     }
+    public async Task InvokeOnUiThreadAsync(Func<Task> callback)
+    {
+        await Dispatcher.UIThread.InvokeAsync(callback);
+    }
+
+    public void VerifyAccess() => Dispatcher.UIThread.VerifyAccess();
 
     public IGuiTimer CreateGuiTimer()
     {
@@ -46,5 +53,10 @@ public class UiAvaloniaImplementation : IUiPlatformImplementation
     public void SetClipboardText(string text)
     {
         throw new NotImplementedException();
+    }
+
+    public void Quit()
+    {
+        Dispatcher.UIThread.BeginInvokeShutdown(DispatcherPriority.Normal);
     }
 }
