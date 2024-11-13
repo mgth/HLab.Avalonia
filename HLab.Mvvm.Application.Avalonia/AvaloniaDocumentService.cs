@@ -41,7 +41,7 @@ public class AvaloniaDocumentService : DocumentService
 
     public override async Task OpenDocumentAsync(IView view, IDocumentPresenter presenter)
     {
-        if (view is IViewClassAnchorable)
+        if (view is IAnchorableViewClass)
         {
             if (!presenter.Anchorables.Contains(view))
                 presenter.Anchorables.Add(view);

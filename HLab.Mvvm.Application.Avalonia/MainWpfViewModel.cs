@@ -1,15 +1,25 @@
 using System.Windows.Input;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Threading;
 using HLab.Erp.Acl;
-using HLab.Icons.Avalonia.Icons;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Application.Documents;
-using HLab.Mvvm.Application.Menus;
 using HLab.Mvvm.ReactiveUI;
 using ReactiveUI;
 
 namespace HLab.Mvvm.Application.Avalonia;
 
-public class AvaloniaApplicationViewModel : ViewModel, IApplicationViewModel
+public class MainAvaloniaViewModelDesign : MainAvaloniaViewModel
+{
+    public MainAvaloniaViewModelDesign() 
+        : base(null, null, null, null, null, null )
+    {
+            
+    }
+}
+
+public class MainAvaloniaViewModel : ViewModel
 {
     public IAclService Acl {get; }
     readonly IDocumentService _doc;
@@ -17,10 +27,9 @@ public class AvaloniaApplicationViewModel : ViewModel, IApplicationViewModel
     public ILocalizationService LocalizationService { get; }
     public IIconService IconService { get; }
 
-    public AvaloniaApplicationViewModel(
+    public MainAvaloniaViewModel(
         IAclService acl, 
         IDocumentService doc, 
-        IMenuService menu, 
         IDocumentPresenter presenter, 
         IApplicationInfoService applicationInfo, 
         ILocalizationService localizationService, 
@@ -34,26 +43,12 @@ public class AvaloniaApplicationViewModel : ViewModel, IApplicationViewModel
         LocalizationService = localizationService;
         IconService = iconService;
 
-        Menu = menu.MainMenu;
-
         _title = this
-            .WhenAnyValue(
-                e => e.ApplicationInfo.Name,
-                e => e.Acl.Connection.User,
-                (a, u) => $"{a} - {u?.Name}"
-            )
+            .WhenAnyValue(e => e.ApplicationInfo.Name)
             .ToProperty(this, e => e.Title);
 
-        Exit = ReactiveCommand.Create(() =>
-        {
-            // TODO
-            //System.Windows.Application.Current.Shutdown();
-        });
-
-        OpenUserCommand = ReactiveCommand.CreateFromTask(async () =>
-        {
-            await _doc.OpenDocumentAsync(Acl.Connection.User);
-        });
+        OpenUserCommand = ReactiveCommand.Create(OpenUser);
+        ExitCommand = ReactiveCommand.Create(Exit);
     }
 
     public IDocumentPresenter DocumentPresenter { get; }
@@ -61,9 +56,11 @@ public class AvaloniaApplicationViewModel : ViewModel, IApplicationViewModel
     public bool IsActive
     {
         get => _isActive;
-        set => this.RaiseAndSetIfChanged(ref _isActive, value);
+        set => SetAndRaise(ref _isActive, value);
     }
     bool _isActive = true;
+
+
 
 
     // TODO
@@ -77,14 +74,18 @@ public class AvaloniaApplicationViewModel : ViewModel, IApplicationViewModel
     //    )
     //);
 
-    public object Menu { get; }  //IsMainMenu = true, 
+    public Menu Menu { get; } = new Menu {/*IsMainMenu = true, */Background=Brushes.Transparent}; 
 
     public string Title => _title.Value;
     readonly ObservableAsPropertyHelper<string> _title;
 
-    public ICommand Exit  { get; } 
+    public ICommand ExitCommand  { get; }
+
+    void Exit() => Dispatcher.UIThread.BeginInvokeShutdown(DispatcherPriority.Normal);
 
     public ICommand OpenUserCommand { get; }
+
+    public void OpenUser() => _doc.OpenDocumentAsync(Acl.Connection.User);
 
 
 }

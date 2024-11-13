@@ -1,29 +1,17 @@
 ﻿namespace HLab.Icons.Avalonia.Icons.Providers;
 
-public abstract class IconProviderXaml : IconProvider
+public abstract class IconProviderXaml(string sourceXaml) : IconProvider
 {
-    string _sourceXaml;
+    protected override object? GetIcon(uint foreground = 0) => XamlTools.FromXamlString(sourceXaml);
 
-    protected IconProviderXaml(string sourceXaml)
-    {
-        _sourceXaml = sourceXaml;
-    }
+    protected override async Task<object?> GetIconAsync(uint foreground = 0) => await XamlTools.FromXamlStringAsync(sourceXaml).ConfigureAwait(true);
 
-    protected override object? GetIcon(uint foreground = 0) => XamlTools.FromXamlString(_sourceXaml);
-
-    protected override async Task<object?> GetIconAsync(uint foreground = 0) => await XamlTools.FromXamlStringAsync(_sourceXaml).ConfigureAwait(true);
-
-    public override async Task<string> GetTemplateAsync(uint foreground = 0) => _sourceXaml;
-
-    protected void SetSource(string  source) => _sourceXaml = source;
+    public override async Task<string> GetTemplateAsync(uint foreground = 0) => sourceXaml;
 }
 
-public abstract class IconProviderXamlParser : IconProviderXaml
+public abstract class IconProviderXamlParser() : IconProviderXaml("")
 {
     bool _parsed = false;
-    protected IconProviderXamlParser() : base("")
-    {
-    }
 
     protected abstract object? ParseIcon();
     protected abstract Task<object?> ParseIconAsync();

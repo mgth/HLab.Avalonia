@@ -183,7 +183,7 @@ public class IconService : Service, IIconService
     }
 
 
-    object GetSingleIcon(string path, uint foreground = 0)
+    object? GetSingleIcon(string path, uint foreground = 0)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
 

@@ -11,12 +11,12 @@ public class IconProviderSvgFromUri(Uri uri, Color? foreColor) : IIconProvider
 {
     string _source ="";
 
-    public object Get(uint foregroundColor = 0)
+    public object? Get(uint foregroundColor = 0)
     {
         return GetAsync(foregroundColor).GetAwaiter().GetResult();
     }
 
-    public async Task<object> GetAsync(uint foregroundColor = 0)
+    public async Task<object?> GetAsync(uint foregroundColor = 0)
     {
         var color = Color.FromUInt32(foregroundColor);
 
