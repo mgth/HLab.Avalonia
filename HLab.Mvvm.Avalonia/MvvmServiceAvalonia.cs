@@ -134,4 +134,9 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
         if(obj is IActivatableViewModel a) a.Activator.Deactivate();
         throw new NotImplementedException();
     }
+
+    public IWindow ViewAsWindow(IView? view)
+    {
+       throw new NotImplementedException();
+    }
 }
