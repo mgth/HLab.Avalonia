@@ -232,7 +232,7 @@ public class ViewLocator : ContentControl
         {
             if(token.IsCancellationRequested) return;
 
-            var view = await context.GetViewAsync(model, viewMode, viewClass);
+            var view = await context.GetViewAsync(model, viewMode, viewClass, token);
 
             var old = Content;
 
