@@ -6,64 +6,67 @@ namespace HLab.Mvvm.Avalonia;
 
 public static class ViewAvaloniaExtensions
 {
-    public static Window AsWindow<T>(this T view) where T : IView
-    {
-        if (view is StyledElement fe) return fe.AsWindow();
+   public static Window AsWindow<T>(this T view) where T : IView
+   {
+      if (view is StyledElement fe) return fe.AsWindow();
 
-        throw new ArgumentException("view should be FrameworkElement");
-    }
+      throw new ArgumentException("view should be StyledElement");
+   }
 
-    public static Window AsWindow(this StyledElement view)
-    {
-        if (view is Window win) return win;
+   public static Window AsWindow(this StyledElement view)
+   {
+      if (view is Window win) return win;
+      if (view is IView v)
 
-        return  new DefaultWindow
-        {
+         return new DefaultWindow
+         {
             DataContext = view?.DataContext,
-            View = view,
-        };
-    }
+            View = v,
+         };
 
-    public static Window AsDialog(this IView view)
-    {
-        if (view is StyledElement fe) return fe.AsDialog();
+      throw new ArgumentException("view should be FrameworkElement");
+   }
 
-        throw new ArgumentException("view should be FrameworkElement");
-    }
+   public static Window AsDialog(this IView view)
+   {
+      if (view is StyledElement fe) return fe.AsDialog();
 
-    public static Window AsDialog(this StyledElement view)
-    {
-        if (view is not Window w)
-        {
-            w = new DefaultWindow
-            {
-                DataContext = view?.DataContext,
-                Content = view,
+      throw new ArgumentException("view should be FrameworkElement");
+   }
 
-                SizeToContent = SizeToContent.WidthAndHeight,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                //WindowStyle = WindowStyle.None,
-                //ResizeMode = ResizeMode.NoResize,
-            };
-        }
+   public static Window AsDialog(this StyledElement view)
+   {
+      if (view is not Window w)
+      {
+         w = new DefaultWindow
+         {
+            DataContext = view?.DataContext,
+            Content = view,
 
-        return w;
-    }
+            SizeToContent = SizeToContent.WidthAndHeight,
+            WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            //WindowStyle = WindowStyle.None,
+            //ResizeMode = ResizeMode.NoResize,
+         };
+      }
 
-    public static TViewModel? ViewModel<TViewMode,TViewModel>(this IView<TViewMode,TViewModel> view)
-        where TViewMode : ViewMode =>
-        view is StyledElement { DataContext: TViewModel vm } ? vm : default;
+      return w;
+   }
 
-    public static bool TryGetViewModel<TViewMode,TViewModel>(this IView<TViewMode,TViewModel> view,out TViewModel? viewModel)
-        where TViewMode : ViewMode
-    {
-        if (view is StyledElement { DataContext: TViewModel vm })
-        {
-            viewModel = vm;
-            return true;
-        }
+   public static TViewModel? ViewModel<TViewMode, TViewModel>(this IView<TViewMode, TViewModel> view)
+       where TViewMode : ViewMode =>
+       view is StyledElement { DataContext: TViewModel vm } ? vm : default;
 
-        viewModel = default;
-        return false;
-    }
+   public static bool TryGetViewModel<TViewMode, TViewModel>(this IView<TViewMode, TViewModel> view, out TViewModel? viewModel)
+       where TViewMode : ViewMode
+   {
+      if (view is StyledElement { DataContext: TViewModel vm })
+      {
+         viewModel = vm;
+         return true;
+      }
+
+      viewModel = default;
+      return false;
+   }
 }
