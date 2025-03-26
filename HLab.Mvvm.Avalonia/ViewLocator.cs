@@ -25,6 +25,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using HLab.Base.Avalonia.DependencyHelpers;
 using HLab.Mvvm.Annotations;
@@ -142,11 +143,6 @@ public class ViewLocator : ContentControl
         set => SetValue(MvvmContextProperty, value);
     }
 
-    public ViewLocator()
-    {
-    }
-
-
     void SetModel(object? model)
     {
         var o = Content;
@@ -185,8 +181,13 @@ public class ViewLocator : ContentControl
         Update();
     }
 
+   protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+   {
+      base.OnAttachedToLogicalTree(e);
+      Update();
+   }
 
-    async void ViewLocator_Loaded(object? sender, VisualTreeAttachmentEventArgs visualTreeAttachmentEventArgs)
+   async void ViewLocator_Loaded(object? sender, VisualTreeAttachmentEventArgs visualTreeAttachmentEventArgs)
     {
         Update();
     }
@@ -232,7 +233,7 @@ public class ViewLocator : ContentControl
         {
             if(token.IsCancellationRequested) return;
 
-            var view = await context.GetViewAsync(model, viewMode, viewClass, token);
+           var view = await context.GetViewAsync(model, viewMode, viewClass, token);
 
             var old = Content;
 
@@ -242,8 +243,6 @@ public class ViewLocator : ContentControl
             {
                 d.Dispose();
             }
-
-            this.InvalidateVisual();
 
         }, DispatcherPriority.Default, cancel.Token);
 

@@ -84,11 +84,11 @@ public class IconService : Service, IIconService
     {
         if (string.IsNullOrEmpty(path)) return string.Empty;
 
-        var paths = path.Split('|');
-
+        var paths = path.Split('|').ToList();
+        paths.Reverse();
         Control? icon = null;
 
-        foreach (var p in paths.Reverse())
+        foreach (var p in paths)
         {
             var pathOrFallBack = p.Split("?");
             var fallBack = pathOrFallBack.Length>1?pathOrFallBack[1]:"icons/default";

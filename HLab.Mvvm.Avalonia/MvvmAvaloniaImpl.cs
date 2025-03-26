@@ -11,132 +11,161 @@ namespace HLab.Mvvm.Avalonia;
 
 public class MvvmAvaloniaImpl : IMvvmPlatformImpl
 {
-    readonly ResourceDictionary _dictionary = new();
+   readonly ResourceDictionary _dictionary = new();
 
-    public MvvmAvaloniaImpl(
-        IMessagesService messageBus, 
-        Func<Type, object> locateFunc,
-        Func<ProgressLoadingViewModel> getProgressLoadingViewModel
-    ) 
-    {
-        GetProgressLoadingViewModel = getProgressLoadingViewModel;
-    }
+   public MvvmAvaloniaImpl(
+       IMessagesService messageBus,
+       Func<Type, object> locateFunc,
+       Func<ProgressLoadingViewModel> getProgressLoadingViewModel
+   )
+   {
+      GetProgressLoadingViewModel = getProgressLoadingViewModel;
+   }
 
-    public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
+   public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
 
-    public  void RegisterWithProgress(IMvvmService mvvm)
-    {
-        var vm = GetProgressLoadingViewModel();
-        //vm.Title = InfoService.Name;
+   public void RegisterWithProgress(IMvvmService mvvm)
+   {
+      var vm = GetProgressLoadingViewModel();
+      //vm.Title = InfoService.Name;
 
-        var progressWindow = new ProgressLoadingView
-        {
-            DataContext = vm,
-        };
+      var progressWindow = new ProgressLoadingView
+      {
+         DataContext = vm,
+      };
 
-        progressWindow.AsWindow().Show();
-        //SetMainView(progressWindow);
+      progressWindow.AsWindow().Show();
+      //SetMainView(progressWindow);
 
-        var t = Task.Run(() => {
-            Application.Current.Resources.MergedDictionaries.Add(_dictionary);
-        });
-
-
-        mvvm.ViewHelperFactory.Register<IView>(v=>new ViewHelperAvalonia((StyledElement)v));
-    }
-        
-    public void Register(IMvvmService mvvm)
-    {
-        Application.Current.Resources.MergedDictionaries.Add(_dictionary);
-        mvvm.ViewHelperFactory.Register<IView>(v => new ViewHelperAvalonia((StyledElement)v));
-    }
-
-    public Task PrepareViewAsync(IView view, CancellationToken token)
-    {
-        if (view is not AvaloniaObject obj) throw new InvalidCastException("IView objects should be AvaloniaObject in Avalonia implementation");
+      var t = Task.Run(() =>
+      {
+         Application.Current.Resources.MergedDictionaries.Add(_dictionary);
+      });
 
 
-        if (Dispatcher.UIThread.CheckAccess())
-        {
-            ViewLocator.SetViewClass(obj,typeof(IDefaultViewClass));
-            ViewLocator.SetViewMode(obj,typeof(DefaultViewMode));
+      mvvm.ViewHelperFactory.Register<IView>(v => new ViewHelperAvalonia((StyledElement)v));
+   }
 
-            LinkDispose(view);
-            
-            return Task.CompletedTask;
-        }
+   public void Register(IMvvmService mvvm)
+   {
+      Application.Current.Resources.MergedDictionaries.Add(_dictionary);
+      mvvm.ViewHelperFactory.Register<IView>(v => new ViewHelperAvalonia((StyledElement)v));
+   }
 
-        return Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            ViewLocator.SetViewClass(obj,typeof(IDefaultViewClass));
-            ViewLocator.SetViewMode(obj,typeof(DefaultViewMode));
+   public Task PrepareViewAsync(IView view, CancellationToken token)
+   {
+      if (view is not AvaloniaObject obj) throw new InvalidCastException("IView objects should be AvaloniaObject in Avalonia implementation");
 
-            LinkDispose(view);
 
-        }, DispatcherPriority.Default, token).GetTask();
+      if (Dispatcher.UIThread.CheckAccess())
+      {
+         ViewLocator.SetViewClass(obj, typeof(IDefaultViewClass));
+         ViewLocator.SetViewMode(obj, typeof(DefaultViewMode));
 
-        //TODO Check if this is still needed, was a try to fix memory leak
-        void LinkDispose(IView v)
-        {
-            if (v is not StyledElement element) return;
-            element.DetachedFromLogicalTree += (a,o) =>
+         LinkDispose(view);
+
+         return Task.CompletedTask;
+      }
+
+      return Dispatcher.UIThread.InvokeAsync(() =>
+      {
+         ViewLocator.SetViewClass(obj, typeof(IDefaultViewClass));
+         ViewLocator.SetViewMode(obj, typeof(DefaultViewMode));
+
+         LinkDispose(view);
+
+      }, DispatcherPriority.Default, token).GetTask();
+
+      //TODO Check if this is still needed, was a try to fix memory leak
+      void LinkDispose(IView v)
+      {
+         if (v is not StyledElement element) return;
+         element.DetachedFromLogicalTree += (a, o) =>
+         {
+            if (element.DataContext is IDisposable vm)
             {
-                if (element.DataContext is IDisposable vm)
-                {
-                    vm.Dispose();
-                }
-                // Dispatcher.UIThread.RunJobs();
-                GC.Collect();
-            };
-        }
-    }
-
-    public void Register(Type t)
-    {
-        if (t.IsInterface) return;
-
-        var template = new FuncDataTemplate(t,(value, namescope) =>
-            new ViewLocator());
-
-
-//            Application.Current.Dispatcher.InvokeAsync(()=>
-//TODO : Avalonia not sure about the key
-        _dictionary.Add(t, template)
-//                )
-            ;
-
-    }
-
-    public async Task<IView> GetNotFoundViewAsync(Type viewModelType, Type viewMode, Type viewClass, CancellationToken token = default)
-    {
-        return await Dispatcher.UIThread.InvokeAsync(() => new NotFoundView
-            {
-                Title = { Content = "View not found" },
-                Message = { Content = (viewModelType?.ToString() ?? "??") 
-                                      + "\n" + (viewMode?.FullName ?? "??") 
-                                      + "\n" + (viewClass?.FullName ?? "??") }
+               vm.Dispose();
             }
-            , DispatcherPriority.Normal
-            , token
-        );
+            // Dispatcher.UIThread.RunJobs();
+            GC.Collect();
+         };
+      }
+   }
 
-    }
+   public void Register(Type t)
+   {
+      if (t.IsInterface) return;
 
-    public object Activate(IView obj)
-    {
-        if(obj is IActivatableViewModel a) a.Activator.Activate();
+      var template = new FuncDataTemplate(t, (value, namescope) =>
+          new ViewLocator());
 
-        return obj;
-    }
 
-    public object Deactivate(IView obj)
-    {
-        if(obj is IActivatableViewModel a) a.Activator.Deactivate();
-        throw new NotImplementedException();
-    }
+      //            Application.Current.Dispatcher.InvokeAsync(()=>
+      //TODO : Avalonia not sure about the key
+      _dictionary.Add(t, template)
+          //                )
+          ;
 
-    public IWindow ViewAsWindow(IView? view)
-    {
-       throw new NotImplementedException();
-    }
+   }
+
+   public async Task<IView> GetNotFoundViewAsync(Type viewModelType, Type viewMode, Type viewClass, CancellationToken token = default)
+   {
+      return await Dispatcher.UIThread.InvokeAsync(() => new NotFoundView
+      {
+         Title = { Text = "View not found" },
+         Message = { Text = (viewModelType?.ToString() ?? "??")
+                                      + "\n" + (viewMode?.FullName ?? "??")
+                                      + "\n" + (viewClass?.FullName ?? "??") }
+      }
+          , DispatcherPriority.Normal
+          , token
+      );
+
+   }
+
+   public object Activate(IView obj)
+   {
+      if (obj is IActivatableViewModel a) a.Activator.Activate();
+
+      return obj;
+   }
+
+   public object Deactivate(IView obj)
+   {
+      if (obj is IActivatableViewModel a) a.Activator.Deactivate();
+      throw new NotImplementedException();
+   }
+
+   public IWindow ViewAsWindow<T>(IView? view) where T : IWindow, new()
+   {
+      switch (view)
+      {
+         case IWindow win:
+            return win;
+         case Control c:
+            {
+               var w = new T()
+               {
+                  DataContext = c?.DataContext,
+                  View = view,
+               };
+
+               return w;
+            }
+         default:
+            throw new ArgumentException("view should be FrameworkElement");
+      }
+   }
+
+   public IWindow ViewAsWindow(IView? view)
+   {
+      //var w = new DefaultWindow()
+      //{
+      //   DataContext = (view as Control)?.DataContext,
+      //   View = view,
+      //};
+
+      //return w;
+      return ViewAsWindow<DefaultWindow>(view);
+   }
 }
