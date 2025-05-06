@@ -6,7 +6,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 
-
 namespace HLab.Base.Avalonia.Controls;
 
 enum ActualKey
