@@ -233,16 +233,14 @@ public class ViewLocator : ContentControl
         {
             if(token.IsCancellationRequested) return;
 
-           var view = await context.GetViewAsync(model, viewMode, viewClass, token);
+              var view = await context.GetViewAsync(model, viewMode, viewClass, token);
+              var old = Content;
+               Content = view;
 
-            var old = Content;
-
-            Content = view;
-
-            if (old is IDisposable d)
-            {
-                d.Dispose();
-            }
+               if (old is IDisposable d)
+               {
+                   d.Dispose();
+               }
 
         }, DispatcherPriority.Default, cancel.Token);
 
