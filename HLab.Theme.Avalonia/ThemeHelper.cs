@@ -1,16 +1,14 @@
 ﻿#nullable enable
 using System.Management;
 using System.Security.Principal;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
-using Avalonia.Platform;
 using Avalonia.Threading;
 using HLab.ColorTools.Avalonia;
 using Microsoft.Win32;
 
-namespace HLab.Base.Avalonia.Themes;
+namespace HLab.Theme.Avalonia;
 
 public class ThemeService
 {

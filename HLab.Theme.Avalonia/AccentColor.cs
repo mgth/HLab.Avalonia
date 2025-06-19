@@ -26,7 +26,7 @@ using Avalonia.Media;
 
 //using System.Drawing;
 
-namespace HLab.Base.Avalonia.Themes;
+namespace HLab.Theme.Avalonia;
 
 // TODO: Add a listener for WM_SETTINGCHANGE to detect changes of the active color scheme automatically.
 //   Add a listener for WM_SETTINGCHANGE and trigger an event, like ActiveSetChanged.
