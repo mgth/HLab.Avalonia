@@ -10,14 +10,16 @@ public class AvaloniaApplicationBootloader(ApplicationBootloader.Injector inject
     // TODO : should not be needed anymore
     //public Window MainWindow { get; protected set; }
 
-    public override async Task LoadAsync(IBootContext b)
+    public override async Task<BootState> LoadAsync()
     {
-        await base.LoadAsync(b);
+        await base.LoadAsync();
 
         var view = await injector.Mvvm.MainContext.GetViewAsync(ViewModel,MainViewMode,typeof(IDefaultViewClass));
         var window = view?.AsWindow();
         // TODO 
         //MainWindow.Closing += (sender, args) => System.Windows.Application.Current.Shutdown();
         window?.Show();
+      
+        return BootState.Completed;
     }
 }

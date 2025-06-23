@@ -1,61 +1,61 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using HLab.Base;
 using HLab.Core;
 using HLab.Mvvm.Annotations;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace HLab.Icons.Avalonia;
 
 
 
-public class IconService : Service, IIconService
+public partial class IconService : Service, IIconService
 {
-    public class Design : IconService
-    {
-        public Design()
-        {
-            if(!global::Avalonia.Controls.Design.IsDesignMode) throw new InvalidOperationException("Only for design mode");
-        }
+   public class Design : IconService
+   {
+      public Design()
+      {
+         if (!global::Avalonia.Controls.Design.IsDesignMode) throw new InvalidOperationException("Only for design mode");
+      }
 
-    }
+   }
 
-    readonly ConcurrentDictionary<string, IIconProvider> _cache = new();
+   readonly ConcurrentDictionary<string, IIconProvider> _cache = new();
 
-    readonly AsyncDictionary<string, object> _templates = new();
-    readonly AsyncDictionary<string, string> _source = new();
+   readonly AsyncDictionary<string, object> _templates = new();
+   readonly AsyncDictionary<string, string> _source = new();
 
-    public async Task<object?> GetIconTemplateAsync(string path, uint foreground = 0)
-    {
-        return await _templates.GetOrAddAsync(
-            path,
-            p => BuildTemplateAsync(path, foreground)
-        );
-    }
+   public async Task<object?> GetIconTemplateAsync(string path, uint foreground = 0)
+   {
+      return await _templates.GetOrAddAsync(
+          path,
+          p => BuildTemplateAsync(path, foreground)
+      );
+   }
 
-    //public Task<object> GetIconAsync(string path) => GetObjectAsync(path, "ContentControl");
-    public Task<object?> GetIconAsync(string path, uint foreground = 0)
-    {
-        return BuildIconAsync(path, foreground);
-    }
+   //public Task<object> GetIconAsync(string path) => GetObjectAsync(path, "ContentControl");
+   public Task<object?> GetIconAsync(string path, uint foreground = 0)
+   {
+      return BuildIconAsync(path, foreground);
+   }
 
-    async Task<object> BuildTemplateAsync(string path, uint foreground = 0)
-    {
-        var template = await GetObjectAsync(path, "Template", foreground);
-        // await await Application.Current.Dispatcher.InvokeAsync(() => BuildIconTemplateAsync(path));
-        return template;
-    }
+   async Task<object> BuildTemplateAsync(string path, uint foreground = 0)
+   {
+      var template = await GetObjectAsync(path, "Template", foreground);
+      // await await Application.Current.Dispatcher.InvokeAsync(() => BuildIconTemplateAsync(path));
+      return template;
+   }
 
-    async Task<object> GetObjectAsync(string path, string container, uint foreground = 0)
-    {
-        var result = await _source.GetOrAddAsync(
-            path,
-            p => BuildIconSourceAsync(path, foreground)
-        );
+   async Task<object> GetObjectAsync(string path, string container, uint foreground = 0)
+   {
+      var result = await _source.GetOrAddAsync(
+          path,
+          p => BuildIconSourceAsync(path, foreground)
+      );
 
-        result = $"""
+      result = $"""
              <{container} 
                  xmlns="https://github.com/avaloniaui"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -64,50 +64,50 @@ public class IconService : Service, IIconService
              </{container}>
              """;
 
-        try
-        {
-            var obj = AvaloniaRuntimeXamlLoader.Parse(result);
-            return obj;
-        }
-        catch
-        {
+      try
+      {
+         var obj = AvaloniaRuntimeXamlLoader.Parse(result);
+         return obj;
+      }
+      catch
+      {
 #if DEBUG
-            var r1 = result;
+         var r1 = result;
 #endif
-        }
+      }
 
-        return "";
-    }
+      return "";
+   }
 
 
-    public async Task<object?> BuildIconAsync(string path, uint foreground = 0)
-    {
-        if (string.IsNullOrEmpty(path)) return string.Empty;
+   public async Task<object?> BuildIconAsync(string path, uint foreground = 0)
+   {
+      if (string.IsNullOrEmpty(path)) return string.Empty;
 
-        var paths = path.Split('|').ToList();
-        paths.Reverse();
-        Control? icon = null;
+      var paths = path.Split('|').ToList();
+      paths.Reverse();
+      Control? icon = null;
 
-        foreach (var p in paths)
-        {
-            var pathOrFallBack = p.Split("?");
-            var fallBack = pathOrFallBack.Length>1?pathOrFallBack[1]:"icons/default";
-            var main = pathOrFallBack[0];
+      foreach (var p in paths)
+      {
+         var pathOrFallBack = p.Split("?");
+         var fallBack = pathOrFallBack.Length > 1 ? pathOrFallBack[1] : "icons/default";
+         var main = pathOrFallBack[0];
 
-            if (icon == null)
-            {
-                icon = (Control)await GetSingleIconAsync(main,fallBack, foreground);
-                continue;
-            }
+         if (icon == null)
+         {
+            icon = (Control)await GetSingleIconAsync(main, fallBack, foreground);
+            continue;
+         }
 
-            var i = (Control)await GetSingleIconAsync(main,fallBack, foreground);
+         var i = (Control)await GetSingleIconAsync(main, fallBack, foreground);
 
-            icon.SetValue(Grid.ColumnProperty, 1);
-            icon.SetValue(Grid.RowProperty, 1);
+         icon.SetValue(Grid.ColumnProperty, 1);
+         icon.SetValue(Grid.RowProperty, 1);
 
-            icon = new Grid
-            {
-                Children =
+         icon = new Grid
+         {
+            Children =
                 {
                     i,
                     new Grid
@@ -117,38 +117,38 @@ public class IconService : Service, IIconService
                         Children = { icon }
                     }
                 }
-            };
-        }
+         };
+      }
 
-        return icon;
-    }
+      return icon;
+   }
 
-    public async Task<string> BuildIconSourceAsync(string path, uint foreground = 0)
-    {
-        if (string.IsNullOrEmpty(path)) return string.Empty;
+   public async Task<string> BuildIconSourceAsync(string path, uint foreground = 0)
+   {
+      if (string.IsNullOrEmpty(path)) return string.Empty;
 
-        var result = string.Empty;
-        var paths = path.Split('|');
+      var result = string.Empty;
+      var paths = path.Split('|');
 
-        foreach (var p in paths)
-        {
-            var icon = await GetSingleIconTemplateAsync(p, foreground);
-            icon ??= "";
+      foreach (var p in paths)
+      {
+         var icon = await GetSingleIconTemplateAsync(p, foreground);
+         icon ??= "";
 
-            // Remove <?xml ?> tag
-            var i = icon.IndexOf("?>", StringComparison.Ordinal);
-            if (i >= 0)
-            {
-                icon = icon[(i + 2)..];
-            }
+         // Remove <?xml ?> tag
+         var i = icon.IndexOf("?>", StringComparison.Ordinal);
+         if (i >= 0)
+         {
+            icon = icon[(i + 2)..];
+         }
 
-            if (result == "")
-            {
-                result = icon;
-                continue;
-            }
+         if (result == "")
+         {
+            result = icon;
+            continue;
+         }
 
-            result = $@"<Grid HorizontalAlignment=""Center"" VerticalAlignment=""Center"">
+         result = $@"<Grid HorizontalAlignment=""Center"" VerticalAlignment=""Center"">
                     {result}
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -164,104 +164,104 @@ public class IconService : Service, IIconService
                         </ContentControl>
                     </Grid>
                 </Grid>";
-        }
+      }
 
 
-        // replace black color with binding to foreground
-        // TODO : use clever algo to parse xml, cause "Black" might be used inside strings
-        const string r = "\"{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type icons:IconView}}}\"";
+      // replace black color with binding to foreground
+      // TODO : use clever algo to parse xml, cause "Black" might be used inside strings
+      const string r = "\"{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type icons:IconView}}}\"";
 
-        result = result.Replace("\"Black\"", r);
-        result = result.Replace("\"#FF000000\"", r);
-        result = result.Replace("\"#000000\"", r);
+      result = result.Replace("\"Black\"", r);
+      result = result.Replace("\"#FF000000\"", r);
+      result = result.Replace("\"#000000\"", r);
 
-        //when assembling multiple icons names can get duplicated but we don't need them
-        result = Regex.Replace(result, "Name *?= *?\".*?\"", "");
-        //result = Regex.Replace(result, "<", "");
+      //when assembling multiple icons names can get duplicated but we don't need them
+      result = Regex.Replace(result, "Name *?= *?\".*?\"", "");
+      //result = Regex.Replace(result, "<", "");
 
-        return result;
-    }
+      return result;
+   }
 
 
-    object? GetSingleIcon(string path, uint foreground = 0)
-    {
-        if (string.IsNullOrWhiteSpace(path)) return null;
+   object? GetSingleIcon(string path, uint foreground = 0)
+   {
+      if (string.IsNullOrWhiteSpace(path)) return null;
 
-        if (_cache.TryGetValue(path.ToLower(), out var iconProvider))
-        {
-            var icon = iconProvider.Get(foreground);
-            return icon;
-        }
+      if (_cache.TryGetValue(path.ToLower(), out var iconProvider))
+      {
+         var icon = iconProvider.Get(foreground);
+         return icon;
+      }
 
-        if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
-        {
-            var icon = iconProviderDefault.Get(foreground);
-            return icon;
-        }
+      if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
+      {
+         var icon = iconProviderDefault.Get(foreground);
+         return icon;
+      }
 
-        Debug.Print("Icon not found : " + path);
+      Debug.Print("Icon not found : " + path);
 
-        return null;
-    }
+      return null;
+   }
 
-    async Task<object> GetSingleIconAsync(string path, string fallBack, uint foreground = 0)
-    {
-        if (string.IsNullOrWhiteSpace(path)) return null;
+   async Task<object> GetSingleIconAsync(string path, string fallBack, uint foreground = 0)
+   {
+      if (string.IsNullOrWhiteSpace(path)) return null;
 
-        if (_cache.TryGetValue(path.Trim().ToLower(), out var iconProvider))
-        {
-            var icon = await iconProvider.GetAsync(foreground).ConfigureAwait(true);
-            return icon;
-        }
+      if (_cache.TryGetValue(path.Trim().ToLower(), out var iconProvider))
+      {
+         var icon = await iconProvider.GetAsync(foreground).ConfigureAwait(true);
+         return icon;
+      }
 
-        if (_cache.TryGetValue(fallBack.Trim().ToLower(), out var fallbackProvider))
-        {
-            var icon = await fallbackProvider.GetAsync(foreground).ConfigureAwait(true);
-            return icon;
-        }
+      if (_cache.TryGetValue(fallBack.Trim().ToLower(), out var fallbackProvider))
+      {
+         var icon = await fallbackProvider.GetAsync(foreground).ConfigureAwait(true);
+         return icon;
+      }
 
-        if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
-        {
-            var icon = await iconProviderDefault.GetAsync(foreground).ConfigureAwait(true);
-            return icon;
-        }
+      if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
+      {
+         var icon = await iconProviderDefault.GetAsync(foreground).ConfigureAwait(true);
+         return icon;
+      }
 
-        Debug.Print("Icon not found : " + path);
+      Debug.Print("Icon not found : " + path);
 
-        return null;
-    }
+      return null;
+   }
 
-    async Task<string> GetSingleIconTemplateAsync(string path, uint foreground = 0)
-    {
-        if (string.IsNullOrWhiteSpace(path)) return null;
+   async Task<string> GetSingleIconTemplateAsync(string path, uint foreground = 0)
+   {
+      if (string.IsNullOrWhiteSpace(path)) return null;
 
-        if (_cache.TryGetValue(path.Trim().ToLower(), out var iconProvider))
-        {
-            var icon = await iconProvider.GetTemplateAsync(foreground);
+      if (_cache.TryGetValue(path.Trim().ToLower(), out var iconProvider))
+      {
+         var icon = await iconProvider.GetTemplateAsync(foreground);
 
-            Regex.Replace(icon, @"<\?.*?\?>", "");//    <?xml version="1.0" encoding="UTF-8"?>
-            return icon;
-        }
+         Regex.Replace(icon, @"<\?.*?\?>", "");//    <?xml version="1.0" encoding="UTF-8"?>
+         return icon;
+      }
 
-        if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
-        {
-            var icon = await iconProviderDefault.GetTemplateAsync(foreground);
-            return icon;
-        }
+      if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
+      {
+         var icon = await iconProviderDefault.GetTemplateAsync(foreground);
+         return icon;
+      }
 
-        Debug.Print("Icon not found : " + path);
+      Debug.Print("Icon not found : " + path);
 
-        return "";
-    }
+      return "";
+   }
 
-    public void AddIconProvider(string name, IIconProvider provider)
-    {
-        _cache.AddOrUpdate(name.ToLower(), n => provider, (n, p) => provider);
-    }
+   public void AddIconProvider(string name, IIconProvider provider)
+   {
+      _cache.AddOrUpdate(name.ToLower(), n => provider, (n, p) => provider);
+   }
 
-    public IIconProvider GetIconProvider(string name)
-    {
-        throw new System.NotImplementedException();
-    }
+   public IIconProvider GetIconProvider(string name)
+   {
+      throw new System.NotImplementedException();
+   }
 
 }

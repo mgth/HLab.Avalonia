@@ -1,6 +1,5 @@
 using System.Windows.Input;
 using HLab.Erp.Acl;
-using HLab.Icons.Avalonia.Icons;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Application.Documents;
 using HLab.Mvvm.Application.Menus;

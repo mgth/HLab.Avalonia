@@ -11,8 +11,19 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.1" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.1" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.1" />
-    <PackageReference Include="System.Management" Version="9.0.6" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.1" />
+    <PackageReference Include="Mages" Version="3.0.0" />
+    <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
+    <PackageReference Include="Skia.Controls.Avalonia" Version="11.3.0.1" />
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.1" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="11.3.1" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1" />
+
+	  <PackageReference Include="System.Management" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>

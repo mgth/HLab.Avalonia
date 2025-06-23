@@ -18,6 +18,11 @@ public partial class DefaultWindow : Window, IWindow
 
     }
 
+    public void SetOwner(IView owner)
+    {
+       throw new NotImplementedException();
+    }
+
     public bool? ShowDialog()
     {
        throw new NotImplementedException();
