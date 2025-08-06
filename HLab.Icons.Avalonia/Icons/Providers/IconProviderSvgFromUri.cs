@@ -3,7 +3,6 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using HLab.Mvvm.Annotations;
 using Svg.Skia;
-using Svg.Controls.Skia.Avalonia;
 
 namespace HLab.Icons.Avalonia.Icons.Providers;
 
@@ -33,10 +32,10 @@ public class IconProviderSvgFromUri(Uri uri, Color? foreColor) : IIconProvider
 
       var svg = new SKSvg().FromSvg(_source);
 
-      if (Dispatcher.UIThread.CheckAccess())
-         return new SKPictureControl() { Picture = svg };
+   //   if (Dispatcher.UIThread.CheckAccess())
+   //      return new SKPictureControl() { Picture = svg };
 
-      return await Dispatcher.UIThread.InvokeAsync(() => new SKPictureControl() { Picture = svg });
+     return await Dispatcher.UIThread.InvokeAsync(() => /*new SKPictureControl() { Picture = svg }*/new object() );
    }
 
    public Task<string> GetTemplateAsync(uint foreground = 0)
