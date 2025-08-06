@@ -36,7 +36,7 @@ public class IconProviderSvgFromUri(Uri uri, Color? foreColor) : IIconProvider
       if (Dispatcher.UIThread.CheckAccess())
          return new SKPictureControl() { Picture = svg };
 
-      return await Dispatcher.UIThread.InvokeAsync(() => new SKPictureControl() { Picture = svg });
+      return await Dispatcher.UIThread.InvokeAsync(() => /*new SKPictureControl() { Picture = svg }*/ );
    }
 
    public Task<string> GetTemplateAsync(uint foreground = 0)
