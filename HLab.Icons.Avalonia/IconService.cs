@@ -96,7 +96,8 @@ public class IconService : Service, IIconService
 
             if (icon == null)
             {
-                icon = (Control)await GetSingleIconAsync(main,fallBack, foreground);
+                var control = await GetSingleIconAsync(main,fallBack, foreground);
+                icon = (Control)control;
                 continue;
             }
 
