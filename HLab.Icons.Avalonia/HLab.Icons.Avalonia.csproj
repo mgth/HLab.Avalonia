@@ -10,6 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.3" />
+    <PackageReference Include="Svg.Model" Version="3.0.5" />
   </ItemGroup>
 
   <ItemGroup>

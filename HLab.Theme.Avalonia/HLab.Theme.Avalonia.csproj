@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HLab.Base.Avalonia\HLab.Base.Avalonia.csproj" />
     <ProjectReference Include="..\HLab.ColorTools.Avalonia\HLab.ColorTools.Avalonia.csproj" />
   </ItemGroup>

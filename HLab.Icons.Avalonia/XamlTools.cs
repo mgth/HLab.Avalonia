@@ -74,14 +74,14 @@ public static class XamlTools
     public static async Task<object> FromSvgStringAsync(string svg)
     {
         if (svg == null) return null;
-        var byteArray = Encoding.ASCII.GetBytes(svg);
+        var byteArray = Encoding.UTF8.GetBytes(svg);
         await using var stream = new MemoryStream(byteArray);
         return await FromSvgStreamAsync(stream).ConfigureAwait(false);
     }
     public static object FromSvgString(string svg)
     {
         if (svg == null) return null;
-        var byteArray = Encoding.ASCII.GetBytes(svg);
+        var byteArray = Encoding.UTF8.GetBytes(svg);
         using var stream = new MemoryStream(byteArray);
         return FromSvgStream(stream);
     }
