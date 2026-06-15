@@ -88,9 +88,9 @@ public class IconService : Service, IIconService
 
         Control? icon = null;
 
-        foreach (var p in paths.Reverse())
+        foreach (var p in Enumerable.Reverse(paths))
         {
-            var pathOrFallBack = p.Split("?");
+            var pathOrFallBack = p.Split('?');
             var fallBack = pathOrFallBack.Length>1?pathOrFallBack[1]:"icons/default";
             var main = pathOrFallBack[0];
 
