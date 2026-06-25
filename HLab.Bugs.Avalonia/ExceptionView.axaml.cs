@@ -199,7 +199,9 @@ namespace HLab.Bugs.Avalonia
                 var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
                 if (clipboard != null)
                 {
-                    await clipboard.SetTextAsync(Exception.ToString());
+                    var data = new global::Avalonia.Input.DataTransfer();
+                    data.Add(global::Avalonia.Input.DataTransferItem.CreateText(Exception.ToString()));
+                    await clipboard.SetDataAsync(data);
                 }
           
             }
