@@ -2,6 +2,7 @@ using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
+using HLab.Base.ReactiveUI;
 using HLab.Erp.Acl;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Application.Documents;
@@ -56,7 +57,7 @@ public class MainAvaloniaViewModel : ViewModel
     public bool IsActive
     {
         get => _isActive;
-        set => SetAndRaise(ref _isActive, value);
+        set => this.SetAndRaise(ref _isActive, value);
     }
     bool _isActive = true;
 

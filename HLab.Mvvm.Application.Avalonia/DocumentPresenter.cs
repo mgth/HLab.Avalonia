@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using HLab.Base.ReactiveUI;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Application.Documents;
 using HLab.Mvvm.Application.Messages;
@@ -29,20 +30,21 @@ namespace HLab.Mvvm.Application.Avalonia
 
         public object ActiveDocument
         {
-            get => _activeDocument;
+            get;
             set
             {
                 _documentHistory.Remove(value);
                 _documentHistory.Insert(0, value);
 
-                if (!SetAndRaise(ref _activeDocument, value)) return;
+                if (!this.SetAndRaise(ref field, value)) return;
 
                 _message.Publish(_getSelectedMessage(value));
             }
         }
-        object _activeDocument;
 
-        public bool RemoveDocument(object document)
+      public object? Theme { get; set => this.SetAndRaise(ref field, value); }
+
+      public bool RemoveDocument(object document)
         {
             if (!Documents.Contains(document)) return false;
             if (_documentHistory.Count <= 0 || !ReferenceEquals(_documentHistory[0], document)) return false;

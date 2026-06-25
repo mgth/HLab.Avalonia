@@ -6,21 +6,15 @@ using HLab.Mvvm.Application.Messages;
 
 namespace HLab.Mvvm.Application.Avalonia;
 
-public class AvaloniaDocumentService : DocumentService
+public class AvaloniaDocumentService(
+   IMvvmService mvvm,
+   Func<Type, object> getter,
+   IMessagesService messageBus,
+   Func<object, ISelectedMessage> getMessage)
+   : DocumentService(mvvm, getter)
 {
-    public IMessagesService MessageBus { get; }
-    Func<object, ISelectedMessage> GetMessage { get; }
-
-    public AvaloniaDocumentService(
-        IMvvmService mvvm,
-        Func<Type, object> getter,
-        IMessagesService messageBus,
-        Func<object, ISelectedMessage> getMessage
-    ) : base(mvvm,getter)
-    {
-        MessageBus = messageBus;
-        GetMessage = getMessage;
-    }
+    public IMessagesService MessageBus { get; } = messageBus;
+    Func<object, ISelectedMessage> GetMessage { get; } = getMessage;
 
     object GetModel(object view)
     {

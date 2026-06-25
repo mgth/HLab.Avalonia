@@ -9,8 +9,18 @@ using ReactiveUI;
 
 namespace HLab.Mvvm.Avalonia;
 
-public class MvvmAvaloniaImpl : IMvvmPlatformImpl
+class MvvmAvaloniaImpl : IMvvmPlatformImpl
 {
+   public class Bootloader(IMvvmService mvvm) : Core.Annotations.Bootloader
+   {
+      protected override BootState Load()
+      {
+         mvvm.RegisterPlatform<MvvmAvaloniaImpl>();
+         return base.Load();
+      }
+   }
+
+
    readonly ResourceDictionary _dictionary = new();
 
    public MvvmAvaloniaImpl(
@@ -136,7 +146,7 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
       throw new NotImplementedException();
    }
 
-   public IWindow ViewAsWindow<T>(IView? view) where T : IWindow, new()
+   public IWindow ViewAsWindow<T>(IView? view) where T : Window, IWindow, new()
    {
       switch (view)
       {
@@ -147,9 +157,9 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
                var w = new T()
                {
                   DataContext = c?.DataContext,
-                  View = view,
+                  Content = view,
                };
-
+               
                return w;
             }
          default:
@@ -159,13 +169,12 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
 
    public IWindow ViewAsWindow(IView? view)
    {
-      //var w = new DefaultWindow()
-      //{
-      //   DataContext = (view as Control)?.DataContext,
-      //   View = view,
-      //};
+      var w = new DefaultWindow()
+      {
+         DataContext = (view as Control)?.DataContext,
+         View = view,
+      };
 
-      //return w;
-      return ViewAsWindow<DefaultWindow>(view);
+      return w;
    }
 }
