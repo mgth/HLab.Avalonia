@@ -193,7 +193,7 @@ public class DoubleBox : TemplatedControl
         SetValueFromText();
     }
 
-    void TextBox_GotFocus(object? sender, GotFocusEventArgs e)
+    void TextBox_GotFocus(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (TextBox?.Text == null) return;
         TextBox.SelectionStart = 0;
@@ -245,19 +245,16 @@ public class DoubleBox : TemplatedControl
 
                 SetValueFromText();
 
-                var next = KeyboardNavigationHandler.GetNext(TextBox, NavigationDirection.Next);
-
-                next?.Focus(NavigationMethod.Directional);
+                TopLevel.GetTopLevel(this)?.FocusManager?.TryMoveFocus(NavigationDirection.Next);
 
                 return true;
-                
+
             case ActualKey.ShiftTab:
 
                 SetValueFromText();
-                
-                var previous = KeyboardNavigationHandler.GetNext(this, NavigationDirection.Previous);
 
-                previous?.Focus(NavigationMethod.Directional);
+                TopLevel.GetTopLevel(this)?.FocusManager?.TryMoveFocus(NavigationDirection.Previous);
+
                 return true;
                 
             case ActualKey.Left:

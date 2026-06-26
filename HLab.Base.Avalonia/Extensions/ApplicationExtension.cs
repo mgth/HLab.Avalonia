@@ -19,8 +19,7 @@ public static class ApplicationExtension
 
             case ISingleViewApplicationLifetime viewApp:
             {
-                var visualRoot = viewApp.MainView?.GetVisualRoot();
-                return visualRoot as TopLevel;
+                return TopLevel.GetTopLevel(viewApp.MainView);
             }
             default:
                 return null;

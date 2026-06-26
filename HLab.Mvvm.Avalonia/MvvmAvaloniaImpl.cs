@@ -9,7 +9,7 @@ using ReactiveUI;
 
 namespace HLab.Mvvm.Avalonia;
 
-class MvvmAvaloniaImpl : IMvvmPlatformImpl
+public class MvvmAvaloniaImpl : IMvvmPlatformImpl
 {
    public class Bootloader(IMvvmService mvvm) : Core.Annotations.Bootloader
    {
@@ -146,7 +146,7 @@ class MvvmAvaloniaImpl : IMvvmPlatformImpl
       throw new NotImplementedException();
    }
 
-   public IWindow ViewAsWindow<T>(IView? view) where T : Window, IWindow, new()
+   public IWindow ViewAsWindow<T>(IView? view) where T : IWindow, new()
    {
       switch (view)
       {
@@ -154,12 +154,13 @@ class MvvmAvaloniaImpl : IMvvmPlatformImpl
             return win;
          case Control c:
             {
-               var w = new T()
+               var w = new T();
+               if (w is Window window)
                {
-                  DataContext = c?.DataContext,
-                  Content = view,
-               };
-               
+                  window.DataContext = c.DataContext;
+                  window.Content = view;
+               }
+
                return w;
             }
          default:
