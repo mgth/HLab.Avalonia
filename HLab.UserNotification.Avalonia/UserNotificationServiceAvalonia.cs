@@ -82,6 +82,13 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
 
     public async Task SetIconAsync(string iconPath, int i)
     {
+        // Daemon state callbacks (Running/Stopped/Dead/Paused) arrive on the socket receive
+        // thread, but building the icon control is UI-thread-affine. Marshal and retry.
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            await await Dispatcher.UIThread.InvokeAsync<Task>(() => SetIconAsync(iconPath, i));
+            return;
+        }
         var icon = await GetImageAsync(iconPath, i);
         if(icon!=null)
         {
