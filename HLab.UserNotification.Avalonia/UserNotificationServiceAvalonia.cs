@@ -118,10 +118,28 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
         {
             _icon = value;
 
-            Dispatcher.UIThread.InvokeAsync(() => _trayIcon.Icon = value);
+            // Hold icon updates while hidden: on Win32 a NIM_MODIFY on a removed icon re-adds it,
+            // which would defeat Visible=false. The latest icon is reapplied when shown again.
+            if (_visible)
+                Dispatcher.UIThread.InvokeAsync(() => _trayIcon.Icon = value);
         }
     }
     WindowIcon? _icon;
+
+    public bool Visible
+    {
+        get => _visible;
+        set
+        {
+            _visible = value;
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                _trayIcon.IsVisible = value;
+                if (value) _trayIcon.Icon = _icon; // reapply the latest icon when re-showing
+            });
+        }
+    }
+    bool _visible = true;
 
     string _toolTipText;
 
