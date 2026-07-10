@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Variant-aware successor of HLab.Theme.{Dark,Light}.axaml: same keys, but the
+         switch is Avalonia's ActualThemeVariant (follows the OS on Windows AND Linux
+         through RequestedThemeVariant="Default") instead of the manual ThemeService
+         dictionary swap, whose auto-detection never worked on Linux. Merge this once
+         at the application level; every existing {DynamicResource HLab.*} keeps
+         working and now flips with the system theme. -->
+
+    <ResourceDictionary.ThemeDictionaries>
+
+        <ResourceDictionary x:Key="{x:Static ThemeVariant.Dark}">
+            <Color x:Key="HLab.Colors.Background">Black</Color>
+            <Color x:Key="HLab.Colors.Foreground">White</Color>
+
+            <Color x:Key="HLab.Colors.Header.Active.Background">#FF0c0c16</Color>
+            <Color x:Key="HLab.Colors.Header.Active.Foreground">#FFcbccd0</Color>
+
+            <Color x:Key="HLab.Colors.Header.Background">#FF3d3d44</Color>
+            <Color x:Key="HLab.Colors.Header.Foreground">#FF878274</Color>
+
+            <Color x:Key="HLab.Colors.Selected.Background">#FF303340</Color>
+            <Color x:Key="HLab.Colors.Selected.Foreground">#FFd3f3f3</Color>
+
+            <!-- Base tint of the window/backdrop (acrylic tint, presenter gradient).
+                 Semi-transparent so the compositor blur stays visible behind it. -->
+            <Color x:Key="ThemeBackgroundColor">#6017171C</Color>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Background" Color="{StaticResource HLab.Colors.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Foreground" Color="{StaticResource HLab.Colors.Foreground}"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Header.Active.Background" Color="{StaticResource HLab.Colors.Header.Active.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Header.Active.Foreground" Color="{StaticResource HLab.Colors.Header.Active.Foreground}"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Header.Background" Color="{StaticResource HLab.Colors.Header.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Header.Foreground" Color="{StaticResource HLab.Colors.Header.Foreground}"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Selected.Background" Color="{StaticResource HLab.Colors.Selected.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Selected.Foreground" Color="{StaticResource HLab.Colors.Selected.Foreground}"/>
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="{x:Static ThemeVariant.Light}">
+            <Color x:Key="HLab.Colors.Background">White</Color>
+            <Color x:Key="HLab.Colors.Foreground">Black</Color>
+
+            <Color x:Key="HLab.Colors.Header.Active.Background">#dee1e3</Color>
+            <Color x:Key="HLab.Colors.Header.Active.Foreground">#87898d</Color>
+
+            <Color x:Key="HLab.Colors.Header.Background">White</Color>
+            <Color x:Key="HLab.Colors.Header.Foreground">#FF878274</Color>
+
+            <Color x:Key="HLab.Colors.Selected.Background">#f3f3f3</Color>
+            <Color x:Key="HLab.Colors.Selected.Foreground">#66686a</Color>
+
+            <Color x:Key="ThemeBackgroundColor">#60F2F2F5</Color>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Background" Color="{StaticResource HLab.Colors.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Foreground" Color="{StaticResource HLab.Colors.Foreground}"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Header.Active.Background" Color="{StaticResource HLab.Colors.Header.Active.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Header.Active.Foreground" Color="{StaticResource HLab.Colors.Header.Active.Foreground}"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Header.Background" Color="{StaticResource HLab.Colors.Header.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Header.Foreground" Color="{StaticResource HLab.Colors.Header.Foreground}"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Selected.Background" Color="{StaticResource HLab.Colors.Selected.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Selected.Foreground" Color="{StaticResource HLab.Colors.Selected.Foreground}"/>
+        </ResourceDictionary>
+
+    </ResourceDictionary.ThemeDictionaries>
+
+</ResourceDictionary>

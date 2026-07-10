@@ -17,6 +17,10 @@ public partial class DefaultWindow : Window, IWindow
     {
         InitializeComponent();
 
+        // The backdrop tint is computed from theme resources: recompute it when
+        // the variant flips (system dark/light change) — resources looked up in
+        // code don't re-resolve on their own, unlike DynamicResource.
+        ActualThemeVariantChanged += (_, _) => UpdateBackdrop();
     }
 
     protected override void OnOpened(EventArgs e)
