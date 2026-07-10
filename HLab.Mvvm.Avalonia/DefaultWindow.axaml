@@ -16,7 +16,7 @@
                   
     icons:IconView.IconService="{Binding IconService}"
     lang:Localize.LocalizationService="{Binding LocalizationService}"
-    TransparencyLevelHint="Mica"
+    TransparencyLevelHint="Mica, AcrylicBlur, Blur"
     Background="Transparent"
 
     x:DataType="annotations:IMainViewModel"
