@@ -226,12 +226,11 @@ public class ViewLocator : ContentControl
         _cancel.Push(cancel);
 
         var token = cancel.Token;
-        Dispatcher.UIThread.InvokeAsync(async() =>
+        Dispatcher.UIThread.InvokeAsync(() =>
         {
             if(token.IsCancellationRequested) return;
 
-            var view = await context.GetViewAsync(model, viewMode, viewClass, token);
-            if(token.IsCancellationRequested) return;
+            var view = context.GetView(model, viewMode, viewClass);
 
             var old = Content;
             Content = view;

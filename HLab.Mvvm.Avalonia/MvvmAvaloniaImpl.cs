@@ -27,17 +27,18 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
       mvvm.ViewHelperFactory.Register<IView>(v => new ViewHelperAvalonia((StyledElement)v));
    }
 
-   public Task PrepareViewAsync(IView view, CancellationToken token)
+   public void PrepareView(IView view)
    {
       if (view is not AvaloniaObject obj) throw new InvalidCastException("IView objects should be AvaloniaObject in Avalonia implementation");
 
       if (Dispatcher.UIThread.CheckAccess())
       {
          Prepare();
-         return Task.CompletedTask;
+         return;
       }
 
-      return Dispatcher.UIThread.InvokeAsync(Prepare, DispatcherPriority.Default, token).GetTask();
+      Dispatcher.UIThread.Invoke(Prepare);
+      return;
 
       void Prepare()
       {
@@ -71,18 +72,17 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
       _dictionary.Add(t, template);
    }
 
-   public async Task<IView> GetNotFoundViewAsync(Type viewModelType, Type viewMode, Type viewClass, CancellationToken token = default)
+   public IView GetNotFoundView(Type viewModelType, Type viewMode, Type viewClass)
    {
-      return await Dispatcher.UIThread.InvokeAsync(() => new NotFoundView
+      IView Create() => new NotFoundView
       {
          Title = { Text = "View not found" },
          Message = { Text = (viewModelType?.ToString() ?? "??")
                                       + "\n" + (viewMode?.FullName ?? "??")
                                       + "\n" + (viewClass?.FullName ?? "??") }
-      }
-          , DispatcherPriority.Normal
-          , token
-      );
+      };
+
+      return Dispatcher.UIThread.CheckAccess() ? Create() : Dispatcher.UIThread.Invoke(Create);
    }
 
    public object Activate(IView obj)
