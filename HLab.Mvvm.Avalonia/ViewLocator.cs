@@ -187,22 +187,22 @@ public class ViewLocator : ContentControl
       Update();
    }
 
-   async void ViewLocator_Loaded(object? sender, VisualTreeAttachmentEventArgs visualTreeAttachmentEventArgs)
-    {
-        Update();
-    }
-
-    class Canceler
-    {
-        public bool State { get; private set; }
-
-        public void Cancel()
-        {
-            State = true;
-        }
-    }
+   protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+   {
+      base.OnDetachedFromLogicalTree(e);
+      CancelPendingUpdates();
+   }
 
     readonly ConcurrentStack<CancellationTokenSource> _cancel = new();
+
+    void CancelPendingUpdates()
+    {
+        while (_cancel.TryPop(out var c))
+        {
+            c.Cancel();
+            c.Dispose();
+        }
+    }
 
     protected void Update()
     {
@@ -220,29 +220,27 @@ public class ViewLocator : ContentControl
         if (Design.IsDesignMode) return;
 
         //cancel current running updates
-        while (_cancel.TryPop(out var c))
-        {
-            c.Cancel();
-        }
+        CancelPendingUpdates();
 
         var cancel = new CancellationTokenSource();
         _cancel.Push(cancel);
 
         var token = cancel.Token;
-        var t = Dispatcher.UIThread.InvokeAsync(async() =>
+        Dispatcher.UIThread.InvokeAsync(async() =>
         {
             if(token.IsCancellationRequested) return;
 
-              var view = await context.GetViewAsync(model, viewMode, viewClass, token);
-              var old = Content;
-               Content = view;
+            var view = await context.GetViewAsync(model, viewMode, viewClass, token);
+            if(token.IsCancellationRequested) return;
 
-               if (old is IDisposable d)
-               {
-                   d.Dispose();
-               }
+            var old = Content;
+            Content = view;
 
-        }, DispatcherPriority.Default, cancel.Token);
+            if (old is IDisposable d)
+            {
+                d.Dispose();
+            }
 
+        }, DispatcherPriority.Default, token);
     }
 }
