@@ -81,9 +81,15 @@ public partial class IconService
             var resources = resourceManager.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
             if (resources == null) return;
 
-            foreach (var rkey in resources.OfType<DictionaryEntry>())
+            // Only the key names are needed here: read them through the raw enumerator, whose
+            // Key property does not deserialize the value. Materializing entries (OfType<
+            // DictionaryEntry>) would deserialize every resource — including System.Drawing
+            // objects whose constructors P/Invoke into USER32 and crash on non-Windows.
+            var enumerator = resources.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-               var r = rkey.Key.ToString()?.ToLower();
+               var r = enumerator.Key?.ToString()?.ToLower();
+               if (r == null) continue;
                Debug.WriteLine(r);
 
                ParseResource(assembly, r, resourceManager);
