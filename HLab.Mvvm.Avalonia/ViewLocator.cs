@@ -230,14 +230,25 @@ public class ViewLocator : ContentControl
         {
             if(token.IsCancellationRequested) return;
 
-            var view = context.GetView(model, viewMode, viewClass);
-
-            var old = Content;
-            Content = view;
-
-            if (old is IDisposable d)
+            // InvokeAsync captures exceptions into a task nobody awaits: without
+            // this catch a throwing view or view-model constructor leaves an
+            // empty control with no diagnostic at all.
+            try
             {
-                d.Dispose();
+                var view = context.GetView(model, viewMode, viewClass);
+
+                var old = Content;
+                Content = view;
+
+                if (old is IDisposable d)
+                {
+                    d.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(
+                    $"ViewLocator: failed to build view for {model.GetType().Name} ({viewMode.Name}/{viewClass.Name}): {ex}");
             }
 
         }, DispatcherPriority.Default, token);
