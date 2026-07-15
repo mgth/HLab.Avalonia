@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -13,10 +15,22 @@ namespace HLab.UserNotification.Avalonia;
 
 public class UserNotificationServiceAvalonia : IUserNotificationService
 {
+    // TrayIcon.IsVisible defaults to true, which makes its constructor immediately call
+    // impl.SetIsVisible(true) → NIM_ADD with a transparent empty icon — a blink before we
+    // have a real bitmap. Override the default to false so construction is a silent no-op
+    // and the first NIM_ADD only fires when we intentionally show a real icon.
+    private sealed class HiddenByDefaultTrayIcon : TrayIcon
+    {
+        static HiddenByDefaultTrayIcon()
+        {
+            IsVisibleProperty.OverrideDefaultValue<HiddenByDefaultTrayIcon>(false);
+        }
+    }
+
     // TODO : Toast implementation
     //readonly INotificationManager _manager;
     readonly TrayIcons _trayIcons = new();
-    readonly TrayIcon _trayIcon = new();
+    readonly HiddenByDefaultTrayIcon _trayIcon = new();
     readonly IIconService _icons;
 
     public UserNotificationServiceAvalonia(IIconService icons)
@@ -24,8 +38,13 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
         _icons = icons;
         _trayIcons.Add(_trayIcon);
         TrayIcon.SetIcons(Application.Current, _trayIcons);
-
         _trayIcon.Clicked += (o, a) => Click?.Invoke(o, a);
+
+        // Avalonia's own ShutdownStarted handler (registered in TrayIcon's static ctor,
+        // which ran before we get here) calls TrayIcon.Dispose() → NIM_DELETE. Our handler
+        // fires second: PostMessage(WM_SIZE) forces the notification area to repaint so the
+        // ghost icon vanishes immediately instead of lingering until hover.
+        Dispatcher.UIThread.ShutdownStarted += (_, _) => RefreshNotificationArea();
     }
 
     public void AddMenu(int pos, NativeMenuItem item)
@@ -120,8 +139,21 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
 
             // Hold icon updates while hidden: on Win32 a NIM_MODIFY on a removed icon re-adds it,
             // which would defeat Visible=false. The latest icon is reapplied when shown again.
-            if (_visible)
-                Dispatcher.UIThread.InvokeAsync(() => _trayIcon.Icon = value);
+            if (!_visible) return;
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                // Re-check _visible at execution time: the lambda is queued before Visible=false
+                // can run (they share the dispatcher queue), so the flag may have flipped.
+                if (!_visible) return;
+                // Set IsVisible BEFORE Icon. Avalonia's UpdateIcon calls NIM_ADD on the first
+                // SetIcon call (_iconAdded=false); if we set IsVisible first, the NIM_ADD fires
+                // with the empty transparent icon (Avalonia's GetOrCreateEmptyIcon) — invisible,
+                // so Windows silently positions the slot. The subsequent SetIcon is NIM_MODIFY,
+                // which updates the bitmap in-place at the already-correct position: no blink.
+                if (!_trayIcon.IsVisible)
+                    _trayIcon.IsVisible = true;
+                _trayIcon.Icon = value;
+            });
         }
     }
     WindowIcon? _icon;
@@ -134,8 +166,25 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
             _visible = value;
             Dispatcher.UIThread.InvokeAsync(() =>
             {
-                _trayIcon.IsVisible = value;
-                if (value) _trayIcon.Icon = _icon; // reapply the latest icon when re-showing
+                if (value)
+                {
+                    // Only show if we already have a bitmap; if not, the Icon setter will
+                    // make the tray slot live once the first bitmap arrives.
+                    if (_icon == null) return;
+                    // IsVisible before Icon for the same reason as the Icon setter above:
+                    // NIM_ADD fires on SetIcon when _iconAdded=false; doing it here first
+                    // with the transparent empty icon keeps the real bitmap at NIM_MODIFY.
+                    _trayIcon.IsVisible = true;
+                    _trayIcon.Icon = _icon;
+                }
+                else
+                {
+                    _trayIcon.IsVisible = false;
+                    // Windows doesn't repaint the notification area after NIM_DELETE until
+                    // the user hovers. Posting WM_SIZE to TrayNotifyWnd forces an immediate
+                    // redraw so the ghost icon vanishes right away.
+                    RefreshNotificationArea();
+                }
             });
         }
     }
@@ -176,5 +225,37 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
         //_manager.ShowNotification(new Notification { Title = title, Body = message});
         //_taskbarIcon.ShowNotification(title, message, NotificationIcon.Error);
     }
+
+    // After any Shell_NotifyIcon call, Windows does not repaint the notification area until
+    // the user hovers. Sending WM_SIZE to TrayNotifyWnd forces an immediate redraw.
+    static void RefreshNotificationArea()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+        RefreshNotificationAreaWin32();
+    }
+
+    [SupportedOSPlatform("windows")]
+    static void RefreshNotificationAreaWin32()
+    {
+        var hTray = FindWindow("Shell_TrayWnd", null);
+        if (hTray == IntPtr.Zero) return;
+        var hChild = FindWindowEx(hTray, IntPtr.Zero, "TrayNotifyWnd", null);
+        if (hChild != IntPtr.Zero)
+            PostMessage(hChild, WM_SIZE, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    const uint WM_SIZE = 0x0005;
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [SupportedOSPlatform("windows")]
+    static extern IntPtr FindWindow(string lpClassName, string? lpWindowName);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [SupportedOSPlatform("windows")]
+    static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string? lpszWindow);
+
+    [DllImport("user32.dll")]
+    [SupportedOSPlatform("windows")]
+    static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
 }
