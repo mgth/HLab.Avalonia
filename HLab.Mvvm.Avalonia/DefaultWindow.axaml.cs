@@ -1,5 +1,7 @@
-﻿using Avalonia;
+﻿using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Threading;
 using HLab.Base.Avalonia.DependencyHelpers;
@@ -94,11 +96,27 @@ public partial class DefaultWindow : Window, IWindow
        var frame = new DispatcherFrame();
        Closed += (_, _) => frame.Continue = false;
 
-       if (_owner is not null) ShowDialog(_owner);
+       // Sans propriétaire un dialogue n'est pas modal et passe derrière au
+       // premier clic : à défaut d'owner explicite, prendre la fenêtre active
+       // (au login il n'y en a pas encore → Show simple, comme avant).
+       var owner = _owner ?? ActiveWindow();
+
+       if (owner is not null) ShowDialog(owner);
        else Show();
 
        Dispatcher.UIThread.PushFrame(frame);
        return DialogResult;
+    }
+
+    Window? ActiveWindow()
+    {
+       if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
+          return null;
+
+       var owner = desktop.Windows.FirstOrDefault(w => w.IsActive && !ReferenceEquals(w, this))
+                   ?? desktop.MainWindow;
+
+       return ReferenceEquals(owner, this) ? null : owner;
     }
 
     public IView? View
