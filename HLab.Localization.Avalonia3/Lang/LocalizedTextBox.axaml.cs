@@ -21,6 +21,24 @@ public partial class LocalizedTextBox : UserControl
     public LocalizedTextBox()
     {
         InitializeComponent();
+        // Le service de localisation (propriété attachée héritée) n'est disponible
+        // qu'une fois rattaché à l'arbre : relocaliser à ce moment-là.
+        AttachedToVisualTree += (_, _) => _ = RefreshAsync();
+    }
+
+    async Task RefreshAsync()
+    {
+        var text = Text;
+        var localize = GetValue(Localize.LocalizationServiceProperty);
+
+        if (localize == null || string.IsNullOrEmpty(text))
+        {
+            TextBoxDisabled.Text = text;
+            return;
+        }
+
+        TextBoxDisabled.Text = await localize.LocalizeAsync(text).ConfigureAwait(true);
+        await PopulateAsync(text);
     }
 
     void SetReadOnly(bool readOnly)
@@ -45,9 +63,7 @@ public partial class LocalizedTextBox : UserControl
             .BindModeDefault(BindingMode.TwoWay)
             .OnChanged(async (e,a) =>
             {
-                var localize = e.GetValue(Localize.LocalizationServiceProperty);
-                e.TextBoxDisabled.Text = await localize.LocalizeAsync(e.Text).ConfigureAwait(true);
-                await e.PopulateAsync(e.Text);
+                await e.RefreshAsync();
             })
             .Register();
 
@@ -106,13 +122,16 @@ public partial class LocalizedTextBox : UserControl
     async Task PopulateAsync(string source)
     {
         var service = GetValue(Localize.LocalizationServiceProperty);
+        if (service == null || string.IsNullOrEmpty(source)) return;
+
         var list = source.GetInside('{', '}').ToList();
 
         Translations.Clear();
 
         foreach (var s in list)
         {
-            Translations.Add(await service?.GetLocalizeEntryAsync("fr-fr",s)!);
+            var entry = await service.GetLocalizeEntryAsync("fr-fr", s);
+            if (entry != null) Translations.Add(entry);
         }
     }
 
