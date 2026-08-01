@@ -114,15 +114,25 @@ public class Localize : TextBlock
     void Update()
     {
         var id = Id;
+        var service = LocalizationService;
+        var language = Language;
         try
         {
             var token = new CancellationToken();
             Task.Run(async ()=>
             {
-                // Le résultat était jeté : le texte restait vide.
-                var localized = await LocalizationService.LocalizeAsync(Language, id, token).ConfigureAwait(false);
-                if(token.IsCancellationRequested) return;
-                await Dispatcher.UIThread.InvokeAsync(() => Text = localized);
+                try
+                {
+                    // Le résultat était jeté : le texte restait vide.
+                    var localized = await service.LocalizeAsync(language, id, token).ConfigureAwait(false);
+                    if(token.IsCancellationRequested) return;
+                    await Dispatcher.UIThread.InvokeAsync(() => Text = localized);
+                }
+                catch (Exception)
+                {
+                    // En cas d'échec de localisation, afficher l'identifiant plutôt que rien.
+                    await Dispatcher.UIThread.InvokeAsync(() => Text = id);
+                }
             }, token);
         }
         catch (Exception)
