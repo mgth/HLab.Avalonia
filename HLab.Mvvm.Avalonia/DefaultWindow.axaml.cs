@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Threading;
 using HLab.Base.Avalonia.DependencyHelpers;
 using HLab.Mvvm.Annotations;
 
@@ -74,12 +75,30 @@ public partial class DefaultWindow : Window, IWindow
 
     public void SetOwner(IView owner)
     {
-       throw new NotImplementedException();
+       if (owner is Visual v && TopLevel.GetTopLevel(v) is Window w) _owner = w;
     }
+    Window? _owner;
 
+    /// <summary>
+    /// Dialog result reported by IWindow.ShowDialog : Avalonia's own dialog result
+    /// (Window.Close(object)) is not publicly readable, so views set this instead.
+    /// </summary>
+    public bool? DialogResult { get; set; }
+
+    /// <summary>
+    /// Blocking modal semantics expected by IWindow consumers (WPF heritage) :
+    /// shows the window and pumps a nested dispatcher frame until it closes.
+    /// </summary>
     public bool? ShowDialog()
     {
-       throw new NotImplementedException();
+       var frame = new DispatcherFrame();
+       Closed += (_, _) => frame.Continue = false;
+
+       if (_owner is not null) ShowDialog(_owner);
+       else Show();
+
+       Dispatcher.UIThread.PushFrame(frame);
+       return DialogResult;
     }
 
     public IView? View

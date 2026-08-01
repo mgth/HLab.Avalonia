@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Threading;
 using HLab.Icons.Avalonia.Icons;
 using HLab.Localization.Avalonia.Lang;
 using HLab.Mvvm.Application.Menus;
@@ -12,8 +13,10 @@ public class AvaloniaMenuService : IMenuService
     public Menu MainMenu {get;} = new();
     object IMenuService.MainMenu => MainMenu;
 
-    public bool RegisterMenu(string path, object header, ICommand command, string iconPath) 
-        => RegisterMenu( MenuPath.Get(path),MainMenu.Items, header, command, iconPath);
+    public bool RegisterMenu(string path, object header, ICommand command, string iconPath)
+        => Dispatcher.UIThread.CheckAccess()
+            ? RegisterMenu(MenuPath.Get(path), MainMenu.Items, header, command, iconPath)
+            : Dispatcher.UIThread.Invoke(() => RegisterMenu(MenuPath.Get(path), MainMenu.Items, header, command, iconPath));
 
     static bool RegisterMenu(MenuPath path, ItemCollection items, object header, ICommand command, string iconPath)
     {
