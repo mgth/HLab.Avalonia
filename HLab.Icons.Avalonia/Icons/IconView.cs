@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Avalonia.Metadata;
 using Avalonia.Threading;
 using HLab.Base.Avalonia.DependencyHelpers;
 using HLab.ColorTools.Avalonia;
@@ -153,7 +154,9 @@ public class IconView : ContentControl
         set => SetValue(PathProperty, value);
     }
 
-    //TODO : Avalonia - [Content]    
+    // [Content] : le contenu XAML enfant devient la légende (comme ContentProperty("Caption")
+    // en WPF) — sans ça il écraserait le Content interne qui porte l'icône.
+    [Content]
     public object Caption
     {
         get => GetValue(CaptionProperty);
@@ -193,7 +196,12 @@ public class IconView : ContentControl
     {
         var path = Path;
 
-        if(string.IsNullOrEmpty(path)) return;
+        // Sans icône il faut quand même passer par Update() pour afficher la légende.
+        if (string.IsNullOrEmpty(path))
+        {
+            Update();
+            return;
+        }
 
         if (IconService == null)
         {
@@ -210,7 +218,10 @@ public class IconView : ContentControl
             }
             else
 #endif
+            {
+                Update();
                 return;
+            }
         }
 
         var iconService = IconService;

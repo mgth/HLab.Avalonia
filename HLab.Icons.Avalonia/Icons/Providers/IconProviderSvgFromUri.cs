@@ -23,29 +23,37 @@ public class IconProviderSvgFromUri(Uri uri, Color? foreColor) : IIconProvider
    
    public async Task<object?> GetAsync(uint foregroundColor = 0)
    {
-      var color = Color.FromUInt32(foregroundColor);
-
-      var foregroundString = $"{color.R:X2}{color.G:X2}{color.B:X2}";
-
-      var stream = AssetLoader.Open(uri);
-      var reader = new StreamReader(stream);
-
-      _source = await reader.ReadToEndAsync();
-
-      _source = _source.Replace("\"#000000\"", $"\"#{foregroundString}\"");
-
-      _source = _source.Replace(":#000000", $":#{foregroundString}");
-      
-      var doc = SvgService.FromSvg(_source);
-      var src = SvgSource.LoadFromSvgDocument(doc);
-      var img = new SvgImage { Source = src };
-
-      return await Dispatcher.UIThread.InvokeAsync(() => 
+      try
       {
-         var icon = new Image {Source = img };
-         // Retourner un TextBlock temporaire en attendant la résolution du namespace SVG
-         return icon;
-      });
+         var color = Color.FromUInt32(foregroundColor);
+
+         var foregroundString = $"{color.R:X2}{color.G:X2}{color.B:X2}";
+
+         var stream = AssetLoader.Open(uri);
+         var reader = new StreamReader(stream);
+
+         _source = await reader.ReadToEndAsync();
+
+         _source = _source.Replace("\"#000000\"", $"\"#{foregroundString}\"");
+
+         _source = _source.Replace(":#000000", $":#{foregroundString}");
+
+         var doc = SvgService.FromSvg(_source);
+         var src = SvgSource.LoadFromSvgDocument(doc);
+         var img = new SvgImage { Source = src };
+
+         return await Dispatcher.UIThread.InvokeAsync(() =>
+         {
+            var icon = new Image {Source = img };
+            // Retourner un TextBlock temporaire en attendant la résolution du namespace SVG
+            return icon;
+         });
+      }
+      catch (Exception ex)
+      {
+         Console.Error.WriteLine($"[Icons] échec SVG {uri}: {ex.GetType().Name} {ex.Message}");
+         return null;
+      }
    }
 
    public Task<string> GetTemplateAsync(uint foreground = 0)

@@ -1,9 +1,61 @@
-﻿namespace HLab.Icons.Avalonia.Icons.Providers;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Svg.Skia;
+using Avalonia.Threading;
+using HLab.Mvvm.Annotations;
+using Svg.Model.Services;
 
-public class IconProviderSvgFromSource(string source, string name, int? foreColor) : IconProviderXamlParser
+namespace HLab.Icons.Avalonia.Icons.Providers;
+
+// Rendu direct via Svg.Skia (comme IconProviderSvgFromUri) : l'ancienne voie
+// XSL svg2xaml n'est pas disponible côté Avalonia et ne couvrait qu'un
+// sous-ensemble du SVG.
+public class IconProviderSvgFromSource(string source, string name, int? foreColor) : IIconProvider
 {
-    protected override async Task<object?> ParseIconAsync() => await XamlTools.FromSvgStringAsync(source);
+    public object? Get(uint foregroundColor = 0)
+    {
+        try
+        {
+            var img = BuildImageSource(foregroundColor);
+            return Dispatcher.UIThread.CheckAccess()
+                ? new Image { Source = img }
+                : Dispatcher.UIThread.InvokeAsync(() => new Image { Source = img }).GetTask().GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[Icons] échec SVG source '{name}': {ex.GetType().Name} {ex.Message}");
+            return null;
+        }
+    }
 
-    protected override object? ParseIcon()=> XamlTools.FromSvgString(source);
+    public async Task<object?> GetAsync(uint foregroundColor = 0)
+    {
+        try
+        {
+            var img = BuildImageSource(foregroundColor);
+            return await Dispatcher.UIThread.InvokeAsync(() => new Image { Source = img });
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[Icons] échec SVG source '{name}': {ex.GetType().Name} {ex.Message}");
+            return null;
+        }
+    }
 
+    SvgImage BuildImageSource(uint foregroundColor)
+    {
+        var color = Color.FromUInt32(foregroundColor);
+        var foregroundString = $"{color.R:X2}{color.G:X2}{color.B:X2}";
+
+        var src = source
+            .Replace("\"#000000\"", $"\"#{foregroundString}\"")
+            .Replace(":#000000", $":#{foregroundString}");
+
+        var doc = SvgService.FromSvg(src);
+        var svg = SvgSource.LoadFromSvgDocument(doc);
+        return new SvgImage { Source = svg };
+    }
+
+    public Task<string> GetTemplateAsync(uint foreground = 0)
+        => Task.FromResult("<ContentControl/>");
 }
