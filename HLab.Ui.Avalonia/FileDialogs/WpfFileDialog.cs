@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -7,7 +6,7 @@ using HLab.UI;
 
 namespace HLab.Ui.Avalonia.FileDialogs;
 
-public class WpfFileDialog(FileDialog fileDialog) : IFileDialog
+public class AvaloniaFileDialog : IFileDialog
 {
 
     public async Task Open(object parent) {
