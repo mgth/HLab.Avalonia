@@ -1,9 +1,15 @@
-﻿using Avalonia.Threading;
+using Avalonia.Threading;
 using HLab.UI;
 using System;
 using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
+using Avalonia.LogicalTree;
+using HLab.Ui.Avalonia.FileDialogs;
 
 namespace HLab.Ui.Avalonia;
 
@@ -14,19 +20,17 @@ public class UiAvaloniaImplementation : IUiPlatformImplementation
         UiPlatform.Configure(new UiAvaloniaImplementation());
     }
 
-    public IOpenFileDialog CreateOpenFileDialog()
-    {
-        throw new NotImplementedException();
-    }
+    static TopLevel? MainTopLevel
+        => Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } w } ? w : null;
 
-    public ISaveFileDialog CreateSaveFileDialog()
-    {
-        throw new NotImplementedException();
-    }
+    public IOpenFileDialog CreateOpenFileDialog() => new AvaloniaOpenFileDialog();
+
+    public ISaveFileDialog CreateSaveFileDialog() => new AvaloniaSaveFileDialog();
 
     public IEnumerable GetLogicalChildren(object fe)
     {
-        throw new NotImplementedException();
+        if (fe is ILogical logical) return logical.LogicalChildren;
+        return Array.Empty<object>();
     }
 
     public async Task InvokeOnUiThreadAsync(Action callback)
@@ -40,19 +44,19 @@ public class UiAvaloniaImplementation : IUiPlatformImplementation
 
     public void VerifyAccess() => Dispatcher.UIThread.VerifyAccess();
 
-    public IGuiTimer CreateGuiTimer()
-    {
-        throw new NotImplementedException();
-    }
+    public IGuiTimer CreateGuiTimer() => new GuiTimer();
 
     public string? GetClipboardText()
     {
-        throw new NotImplementedException();
+        var clipboard = MainTopLevel?.Clipboard;
+        if (clipboard is null) return null;
+        return clipboard.TryGetTextAsync().GetAwaiter().GetResult();
     }
 
     public void SetClipboardText(string text)
     {
-        throw new NotImplementedException();
+        var clipboard = MainTopLevel?.Clipboard;
+        clipboard?.SetTextAsync(text);
     }
 
     public void Quit()
