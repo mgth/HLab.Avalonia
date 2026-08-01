@@ -85,6 +85,9 @@ public class Localize : TextBlock
 
     public static readonly AttachedProperty<string?> LanguageProperty =
         H.Property<string?>()
+            // Langue de l'UI par défaut : sans valeur héritée depuis la racine,
+            // Init() abandonnait et aucun texte ne s'affichait.
+            .Default(System.Globalization.CultureInfo.CurrentUICulture.IetfLanguageTag.ToLowerInvariant())
             .OnChanged((e, a) =>
             {
                 if (e.Language == null)
@@ -110,13 +113,14 @@ public class Localize : TextBlock
 
     void Update()
     {
-        var localized = Id;
+        var id = Id;
         try
         {
             var token = new CancellationToken();
             Task.Run(async ()=>
             {
-                await LocalizationService.LocalizeAsync(Language, localized, token).ConfigureAwait(false);
+                // Le résultat était jeté : le texte restait vide.
+                var localized = await LocalizationService.LocalizeAsync(Language, id, token).ConfigureAwait(false);
                 if(token.IsCancellationRequested) return;
                 await Dispatcher.UIThread.InvokeAsync(() => Text = localized);
             }, token);
