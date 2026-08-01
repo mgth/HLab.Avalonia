@@ -10,7 +10,11 @@ public class AvaloniaApplicationBootloader(ApplicationBootloader.Injector inject
 {
     public override async Task<BootState> LoadAsync()
     {
-        await base.LoadAsync();
+        // Propager le Requeue du base (attente LocalizeBootloader/LoginBootloader) :
+        // sans ça on construisait la fenêtre principale avant le login, avec un
+        // ViewModel null, et on ne repassait jamais.
+        var state = await base.LoadAsync();
+        if (state != BootState.Completed) return state;
 
         var view = injector.Mvvm.MainContext.GetView(ViewModel, MainViewMode, typeof(IDefaultViewClass));
         var window = view?.AsWindow();
