@@ -156,6 +156,7 @@ public class ViewLocator : ContentControl
                     if (ReferenceEquals(o, _oldModel))
                     {
                         _oldModel = model;
+                        _resolvedModel = model;
                         se.DataContext = model;
                         return;
                     }
@@ -166,6 +167,7 @@ public class ViewLocator : ContentControl
                     if (ReferenceEquals(o, _oldModel))
                     {
                         _oldModel = model;
+                        _resolvedModel = model;
                         vm.Model = model;
                         return;
                     }
@@ -204,6 +206,11 @@ public class ViewLocator : ContentControl
         }
     }
 
+    object? _resolvedModel;
+    Type? _resolvedViewMode;
+    Type? _resolvedViewClass;
+    IMvvmContext? _resolvedContext;
+
     protected void Update()
     {
         var context = MvvmContext;
@@ -216,6 +223,15 @@ public class ViewLocator : ContentControl
 
         if (context == null) return;
         if(model==null) return;
+
+        // L'attachement à l'arbre rejoue Update (changement d'onglet...) : ne pas
+        // re-résoudre une vue déjà en place — les vues ne sont pas cachées, on en
+        // recréerait une à chaque réinsertion (état perdu, doublons).
+        if (Content != null
+            && ReferenceEquals(model, _resolvedModel)
+            && viewMode == _resolvedViewMode
+            && viewClass == _resolvedViewClass
+            && ReferenceEquals(context, _resolvedContext)) return;
 
         if (Design.IsDesignMode) return;
 
@@ -239,6 +255,11 @@ public class ViewLocator : ContentControl
 
                 var old = Content;
                 Content = view;
+
+                _resolvedModel = model;
+                _resolvedViewMode = viewMode;
+                _resolvedViewClass = viewClass;
+                _resolvedContext = context;
 
                 if (old is IDisposable d)
                 {

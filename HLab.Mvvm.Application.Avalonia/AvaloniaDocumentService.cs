@@ -35,46 +35,36 @@ public class AvaloniaDocumentService(
 
     public override async Task OpenDocumentAsync(IView view, IDocumentPresenter presenter)
     {
+        // Chercher un document existant pour le même modèle AVANT d'ajouter : les
+        // vues ne sont pas cachées (IView NotCacheable), chaque GetView en crée
+        // une nouvelle — ajouter d'abord laissait un doublon dans le présenteur.
+        var model = GetModel(view);
+
         if (view is IAnchorableViewClass)
         {
-            if (!presenter.Anchorables.Contains(view))
-                presenter.Anchorables.Add(view);
-        }
-        else
-        {
-            if (!presenter.Documents.Contains(view))
-            {
-                presenter.Documents.Add(view);
+            if (presenter.Anchorables.Contains(view)) return;
 
-                MessageBus.Publish(GetMessage(view));
+            foreach (var anchorable in presenter.Anchorables.ToList())
+            {
+                if (ReferenceEquals(model, GetModel(anchorable)))
+                    return;
             }
 
-            presenter.ActiveDocument = view as Control;
+            presenter.Anchorables.Add(view);
+            return;
         }
 
-
-        var model = GetModel(view);
-        var documents = presenter.Documents.ToList();
-        foreach (var document in documents)
+        foreach (var document in presenter.Documents.ToList())
         {
-            var documentModel = GetModel(document);
-
-            if (!ReferenceEquals(model, documentModel)) continue;
+            if (!ReferenceEquals(model, GetModel(document))) continue;
 
             presenter.ActiveDocument = document;
             return;
         }
 
-        var anchorables = presenter.Anchorables.ToList();
-        foreach (var anchorable in anchorables)
-        {
-            var documentModel = GetModel(anchorable);
-            if (ReferenceEquals(model, documentModel))
-            {
-                return;
-            }
-        }
-
+        presenter.Documents.Add(view);
+        MessageBus.Publish(GetMessage(view));
+        presenter.ActiveDocument = view as Control;
     }
 
 
