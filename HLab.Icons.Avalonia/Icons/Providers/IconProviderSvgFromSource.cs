@@ -44,12 +44,7 @@ public class IconProviderSvgFromSource(string source, string name, int? foreColo
 
     SvgImage BuildImageSource(uint foregroundColor)
     {
-        var color = Color.FromUInt32(foregroundColor);
-        var foregroundString = $"{color.R:X2}{color.G:X2}{color.B:X2}";
-
-        var src = source
-            .Replace("\"#000000\"", $"\"#{foregroundString}\"")
-            .Replace(":#000000", $":#{foregroundString}");
+        var src = SvgForeground.Apply(source, foregroundColor);
 
         var doc = SvgService.FromSvg(src);
         var svg = SvgSource.LoadFromSvgDocument(doc);

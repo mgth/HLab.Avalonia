@@ -123,10 +123,15 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
 
    public IWindow ViewAsWindow(IView? view)
    {
+      // Chemin des dialogues (login, motivation, config BDD...) : dimensionnés
+      // au contenu — le shell passe par AsWindow() et garde sa taille libre.
       var w = new DefaultWindow()
       {
          DataContext = (view as Control)?.DataContext,
          View = view,
+
+         SizeToContent = SizeToContent.WidthAndHeight,
+         WindowStartupLocation = WindowStartupLocation.CenterScreen,
       };
 
       return w;

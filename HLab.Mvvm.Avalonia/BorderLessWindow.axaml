@@ -50,7 +50,7 @@
 			<Grid x:Name="ResizeGrid">
 				<Border
 					Background="{DynamicResource HLab.Brushes.Header.Active.Background}"
-					BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+					BorderBrush="{DynamicResource HLab.Brushes.Accent}"
 					CornerRadius="8"
                         />
 

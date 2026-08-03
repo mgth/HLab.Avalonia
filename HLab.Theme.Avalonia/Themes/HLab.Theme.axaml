@@ -8,6 +8,11 @@
          at the application level; every existing {DynamicResource HLab.*} keeps
          working and now flips with the system theme. -->
 
+    <ResourceDictionary.MergedDictionaries>
+        <!-- Chrome de fenêtre HLab (sans titre ni bouton plein écran) -->
+        <ResourceInclude Source="avares://HLab.Theme.Avalonia/Themes/HLab.WindowDecorations.axaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
     <ResourceDictionary.ThemeDictionaries>
 
         <ResourceDictionary x:Key="{x:Static ThemeVariant.Dark}">
@@ -22,6 +27,50 @@
 
             <Color x:Key="HLab.Colors.Selected.Background">#FF303340</Color>
             <Color x:Key="HLab.Colors.Selected.Foreground">#FFd3f3f3</Color>
+
+            <!-- Accent : reprend le steel de MahApps (dark.steel) utilisé par le
+                 client WPF, avec les gradations translucides MahApps (Accent2/3/4
+                 = alpha CC/99/33) — les vues portées empilent ces voiles sur
+                 ThemeBackground pour la profondeur. -->
+            <Color x:Key="HLab.Colors.Accent">#FF647687</Color>
+            <Color x:Key="HLab.Colors.Accent2">#CC647687</Color>
+            <Color x:Key="HLab.Colors.Accent3">#99647687</Color>
+            <Color x:Key="HLab.Colors.Accent4">#33647687</Color>
+
+            <!-- Équivalent MahApps.Brushes.ThemeBackground (fond des fiches/documents). -->
+            <Color x:Key="HLab.Colors.ThemeBackground">#FF252525</Color>
+
+            <!-- Fond des panneaux/cartes posés sur HLab.Brushes.Background
+                 (gris AvalonDock/MahApps du client WPF). -->
+            <Color x:Key="HLab.Colors.Control.Background">#FF2A2A31</Color>
+
+            <!-- Champs de saisie : gris MahApps, sans bordure (le blanc Fluent
+                 rendait la fiche beaucoup trop contrastée). Clés Fluent reprises
+                 par TextBox/AutoCompleteBox/NumericUpDown... -->
+            <SolidColorBrush x:Key="TextControlBackground" Color="#FF54575F"/>
+            <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#FF5C5F68"/>
+            <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#FF5C5F68"/>
+            <SolidColorBrush x:Key="TextControlBackgroundDisabled" Color="#FF3C3F46"/>
+            <SolidColorBrush x:Key="TextControlBorderBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#33FFFFFF"/>
+            <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#FF647687"/>
+            <SolidColorBrush x:Key="ComboBoxBackground" Color="#FF54575F"/>
+            <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#FF5C5F68"/>
+            <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#33FFFFFF"/>
+
+            <Color x:Key="HLab.Colors.Badge.Background">#FF647687</Color>
+            <Color x:Key="HLab.Colors.Badge.Foreground">White</Color>
+
+            <!-- Recoloration des contrôles Fluent : sans ces clés l'accent reste le bleu
+                 Windows par défaut, décorrélé du thème HLab. -->
+            <Color x:Key="SystemAccentColor">#FF647687</Color>
+            <Color x:Key="SystemAccentColorDark1">#FF5A6A79</Color>
+            <Color x:Key="SystemAccentColorDark2">#FF505E6C</Color>
+            <Color x:Key="SystemAccentColorDark3">#FF46535E</Color>
+            <Color x:Key="SystemAccentColorLight1">#FF748594</Color>
+            <Color x:Key="SystemAccentColorLight2">#FF8494A1</Color>
+            <Color x:Key="SystemAccentColorLight3">#FF94A3AE</Color>
 
             <!-- Base tint of the window/backdrop (acrylic tint, presenter gradient).
                  Semi-transparent so the compositor blur stays visible behind it. -->
@@ -38,6 +87,22 @@
 
             <SolidColorBrush x:Key="HLab.Brushes.Selected.Background" Color="{StaticResource HLab.Colors.Selected.Background}"/>
             <SolidColorBrush x:Key="HLab.Brushes.Selected.Foreground" Color="{StaticResource HLab.Colors.Selected.Foreground}"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Accent" Color="{StaticResource HLab.Colors.Accent}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Accent2" Color="{StaticResource HLab.Colors.Accent2}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Accent3" Color="{StaticResource HLab.Colors.Accent3}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Accent4" Color="{StaticResource HLab.Colors.Accent4}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.ThemeBackground" Color="{StaticResource HLab.Colors.ThemeBackground}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Control.Background" Color="{StaticResource HLab.Colors.Control.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Badge.Background" Color="{StaticResource HLab.Colors.Badge.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Badge.Foreground" Color="{StaticResource HLab.Colors.Badge.Foreground}"/>
+
+            <!-- Alternance des lignes de listes (le style MahApps la fournit en WPF). -->
+            <SolidColorBrush x:Key="HLab.Brushes.Row.Alternate" Color="#0CFFFFFF"/>
+
+            <!-- Équivalent MahApps SystemControlErrorTextForeground : jaune en
+                 sombre (le rouge sur gris est illisible). -->
+            <SolidColorBrush x:Key="HLab.Brushes.ErrorText" Color="#FFFFD700"/>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="{x:Static ThemeVariant.Light}">
@@ -53,6 +118,27 @@
             <Color x:Key="HLab.Colors.Selected.Background">#f3f3f3</Color>
             <Color x:Key="HLab.Colors.Selected.Foreground">#66686a</Color>
 
+            <!-- Accent : reprend le bleu de MahApps (light.blue) utilisé par le client WPF. -->
+            <Color x:Key="HLab.Colors.Accent">#FF119EDA</Color>
+            <Color x:Key="HLab.Colors.Accent2">#CC119EDA</Color>
+            <Color x:Key="HLab.Colors.Accent3">#99119EDA</Color>
+            <Color x:Key="HLab.Colors.Accent4">#33119EDA</Color>
+
+            <Color x:Key="HLab.Colors.ThemeBackground">#FFFFFFFF</Color>
+
+            <Color x:Key="HLab.Colors.Control.Background">#FFF5F6F8</Color>
+
+            <Color x:Key="HLab.Colors.Badge.Background">#FF119EDA</Color>
+            <Color x:Key="HLab.Colors.Badge.Foreground">White</Color>
+
+            <Color x:Key="SystemAccentColor">#FF119EDA</Color>
+            <Color x:Key="SystemAccentColorDark1">#FF0F8EC4</Color>
+            <Color x:Key="SystemAccentColorDark2">#FF0E7EAE</Color>
+            <Color x:Key="SystemAccentColorDark3">#FF0C6F99</Color>
+            <Color x:Key="SystemAccentColorLight1">#FF29A8DE</Color>
+            <Color x:Key="SystemAccentColorLight2">#FF41B1E1</Color>
+            <Color x:Key="SystemAccentColorLight3">#FF59BBE5</Color>
+
             <Color x:Key="ThemeBackgroundColor">#60F2F2F5</Color>
 
             <SolidColorBrush x:Key="HLab.Brushes.Background" Color="{StaticResource HLab.Colors.Background}"/>
@@ -66,8 +152,33 @@
 
             <SolidColorBrush x:Key="HLab.Brushes.Selected.Background" Color="{StaticResource HLab.Colors.Selected.Background}"/>
             <SolidColorBrush x:Key="HLab.Brushes.Selected.Foreground" Color="{StaticResource HLab.Colors.Selected.Foreground}"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Accent" Color="{StaticResource HLab.Colors.Accent}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Accent2" Color="{StaticResource HLab.Colors.Accent2}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Accent3" Color="{StaticResource HLab.Colors.Accent3}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Accent4" Color="{StaticResource HLab.Colors.Accent4}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.ThemeBackground" Color="{StaticResource HLab.Colors.ThemeBackground}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Control.Background" Color="{StaticResource HLab.Colors.Control.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Badge.Background" Color="{StaticResource HLab.Colors.Badge.Background}"/>
+            <SolidColorBrush x:Key="HLab.Brushes.Badge.Foreground" Color="{StaticResource HLab.Colors.Badge.Foreground}"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.Row.Alternate" Color="#08000000"/>
+
+            <SolidColorBrush x:Key="HLab.Brushes.ErrorText" Color="#FFC50500"/>
         </ResourceDictionary>
 
     </ResourceDictionary.ThemeDictionaries>
+
+    <!-- Parité WPF : texte de base en 12px — Fluent est calibré à 14px
+         (ControlContentThemeFontSize), tout paraît plus gros qu'en MahApps. -->
+    <x:Double x:Key="ControlContentThemeFontSize">12</x:Double>
+
+    <!-- Expander discret façon MahApps : l'entête Fluent est une boîte de 48px
+         avec fond et bordure (rendu "combo" sur la ligne Audit des fiches). -->
+    <x:Double x:Key="ExpanderMinHeight">28</x:Double>
+    <SolidColorBrush x:Key="ExpanderHeaderBackground">Transparent</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderBorderBrush">Transparent</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderContentBackground">Transparent</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderContentBorderBrush">Transparent</SolidColorBrush>
 
 </ResourceDictionary>

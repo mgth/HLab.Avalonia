@@ -25,18 +25,12 @@ public class IconProviderSvgFromUri(Uri uri, Color? foreColor) : IIconProvider
    {
       try
       {
-         var color = Color.FromUInt32(foregroundColor);
-
-         var foregroundString = $"{color.R:X2}{color.G:X2}{color.B:X2}";
-
          var stream = AssetLoader.Open(uri);
          var reader = new StreamReader(stream);
 
          _source = await reader.ReadToEndAsync();
 
-         _source = _source.Replace("\"#000000\"", $"\"#{foregroundString}\"");
-
-         _source = _source.Replace(":#000000", $":#{foregroundString}");
+         _source = SvgForeground.Apply(_source, foregroundColor);
 
          var doc = SvgService.FromSvg(_source);
          var src = SvgSource.LoadFromSvgDocument(doc);

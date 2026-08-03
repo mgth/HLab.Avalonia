@@ -1,0 +1,113 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Couche de styles implicites globaux posée par-dessus FluentTheme.
+         FluentTheme est calibré "touch" (contrôles de 32px, entêtes d'onglets en 24px) ;
+         le client WPF est sur MahApps, bien plus dense. Ces styles resserrent la densité
+         globalement plutôt que par retouches vue par vue. À inclure au niveau application :
+         <StyleInclude Source="avares://HLab.Theme.Avalonia/Themes/HLab.Styles.axaml"/> -->
+
+    <!-- Parité WPF : police de base 12px, héritée par tout le contenu de la
+         fenêtre (les FontSize explicites des vues restent prioritaires). -->
+    <Style Selector="Window">
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <!-- Expander discret (voir les overrides Expander* dans HLab.Theme.axaml). -->
+    <Style Selector="Expander">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="4,2"/>
+    </Style>
+
+    <!-- Menus : comme MahApps côté WPF, les MenuItem sont ramenés à la taille de
+         contenu — sinon ils héritent du FontSize=25 posé sur la barre de menu du
+         shell (neutralisé en WPF par le style MahApps, pas par Fluent). -->
+    <Style Selector="MenuItem">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="8,4"/>
+    </Style>
+
+    <!-- Fluent affiche les entêtes d'onglets façon "pivot" en 24px : illisible
+         pour un TabControl de documents. -->
+    <Style Selector="TabItem">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Padding" Value="10,4"/>
+    </Style>
+
+    <Style Selector="Button">
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="ToggleButton">
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBox">
+        <Setter Property="Padding" Value="6,4"/>
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="ComboBox">
+        <Setter Property="Padding" Value="6,4"/>
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="NumericUpDown">
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="CornerRadius" Value="3"/>
+    </Style>
+
+    <Style Selector="CalendarDatePicker">
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="CheckBox">
+        <Setter Property="MinHeight" Value="26"/>
+    </Style>
+
+    <!-- Listes : entêtes sobres et rangées resserrées, à la MahApps. -->
+    <Style Selector="DataGrid">
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="#20808080"/>
+    </Style>
+
+    <Style Selector="DataGridColumnHeader">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="8,6"/>
+    </Style>
+
+    <Style Selector="DataGridRow">
+        <Setter Property="MinHeight" Value="26"/>
+    </Style>
+
+    <!-- Alternance des lignes, comme le style MahApps côté WPF. -->
+    <Style Selector="DataGridRow:nth-child(2n)">
+        <Setter Property="Background" Value="{DynamicResource HLab.Brushes.Row.Alternate}"/>
+    </Style>
+
+    <!-- Le thème Fluent du DataGrid fixe la cellule à 15px (n'hérite pas du 12). -->
+    <Style Selector="DataGridCell">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="8,2"/>
+    </Style>
+
+</Styles>

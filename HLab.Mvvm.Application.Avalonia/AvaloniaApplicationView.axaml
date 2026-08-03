@@ -24,8 +24,8 @@
     -->
     <Grid  Margin="2" RowDefinitions="Auto,Auto,*">
         <!-- Menu Bar-->
-            <Grid 
-                Background="{DynamicResource MahApps.Brushes.Accent4}" 
+            <Grid
+                Background="{DynamicResource HLab.Brushes.Accent4}"
                 ColumnDefinitions="30,Auto,*,Auto">
 
                 <Viewbox>
@@ -36,8 +36,8 @@
                     Grid.Column="1" 
                     VerticalAlignment="Center" 
                     FontSize="25" 
-                    Content="{Binding Menu}" 
-                    Background="{DynamicResource MahApps.Brushes.Accent4}"/>
+                    Content="{Binding Menu}"
+                    Background="{DynamicResource HLab.Brushes.Accent4}"/>
 
                 <Label Opacity="0.5" Grid.Column="2" 
                        HorizontalContentAlignment="Center" 
@@ -88,7 +88,8 @@
                 </StackPanel>
             </Grid>
 
-            <Viewbox Height="1000" Grid.Row="2" Opacity="0.1">
+            <!-- Opacité du filigrane cuite dans LogoBackground.svg (non composée par Skia) -->
+            <Viewbox Height="1000" Grid.Row="2">
                 <icons:IconView Path="icons/LogoBackground"/>
             </Viewbox>
             

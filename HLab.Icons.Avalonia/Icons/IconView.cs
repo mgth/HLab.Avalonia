@@ -43,6 +43,29 @@ public class IconView : ContentControl
         AttachedToVisualTree += IconView_Loaded;
 
         PropertyChanged += OnPropertyChanged;
+
+        // Le foreground est cuit dans le SVG au chargement : recharger quand la
+        // variante change (le repli d'EffectiveForeground en dépend).
+        ActualThemeVariantChanged += (_, _) => LoadIcon();
+    }
+
+    /// <summary>
+    /// Foreground effectif à cuire dans le SVG. TextElement.Foreground a un
+    /// DÉFAUT NOIR hérité (jamais null) : quand personne n'a posé de blanc en
+    /// amont, l'icône était cuite en noir — invisible en variante sombre. Un
+    /// noir en sombre n'est jamais voulu (parité WPF : tout est blanc en
+    /// sombre) : on le traite comme un défaut non hérité.
+    /// </summary>
+    uint EffectiveForeground()
+    {
+        var dark = ActualThemeVariant == global::Avalonia.Styling.ThemeVariant.Dark;
+
+        var foreground = Foreground?.ToColor().ToUInt32() ?? 0;
+
+        if (foreground == 0) return dark ? 0xFFFFFFFF : 0xFF000000;
+        if (dark && (foreground & 0x00FFFFFF) == 0) return 0xFFFFFFFF;
+
+        return foreground;
     }
 
     //Rebuild icon on foreground change (Full black is replaced by foreground color)
@@ -253,7 +276,7 @@ public class IconView : ContentControl
             async () =>
             {
                 if (cancel.State) return;
-                var icon = await iconService.GetIconAsync(path,Foreground?.ToColor().ToUInt32()??0);
+                var icon = await iconService.GetIconAsync(path, EffectiveForeground());
                 if (cancel.State) return;
                 _iconElement.Content = icon;
                 Update();

@@ -2,8 +2,11 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using HLab.Base.Avalonia.DependencyHelpers;
 using HLab.Mvvm.Annotations;
 
@@ -24,6 +27,27 @@ public partial class DefaultWindow : Window, IWindow
         // the variant flips (system dark/light change) — resources looked up in
         // code don't re-resolve on their own, unlike DynamicResource.
         ActualThemeVariantChanged += (_, _) => UpdateBackdrop();
+
+        // Window.Title est une string : le contrôle Localize ne peut pas s'y
+        // appliquer, un binding direct affiche le tag brut ("{Connection}").
+        DataContextChanged += (_, _) => _ = LocalizeTitleAsync();
+    }
+
+    async Task LocalizeTitleAsync()
+    {
+        if (DataContext is not IMainViewModel vm) return;
+
+        var title = vm.Title;
+        if (string.IsNullOrWhiteSpace(title)) return;
+
+        try
+        {
+            Title = await vm.LocalizationService.LocalizeAsync(title);
+        }
+        catch
+        {
+            Title = title;
+        }
     }
 
     protected override void OnOpened(EventArgs e)
@@ -39,11 +63,11 @@ public partial class DefaultWindow : Window, IWindow
     }
 
     /// <summary>
-    /// The hint asks for Mica / AcrylicBlur / Blur in that order; what the platform grants
-    /// decides the background. Windows Mica/Acrylic draw their own backdrop behind a fully
-    /// transparent window. X11 Blur (KWin) only blurs what is behind: an acrylic look needs
-    /// a translucent tint on top of it. Anything less would leave the window see-through,
-    /// so without any compositor effect the background falls back to opaque.
+    /// Sans TransparencyLevelHint le niveau effectif est None → fond opaque aux couleurs
+    /// du thème (le backdrop Mica/Acrylic rendait la dominante grise au lieu du noir HLab
+    /// et cassait les coins arrondis Win11). La logique Mica/Blur est conservée au cas où
+    /// une fenêtre redemande un hint : Windows dessine alors son propre backdrop derrière
+    /// une fenêtre transparente ; X11 Blur (KWin) exige une teinte translucide par-dessus.
     /// </summary>
     void UpdateBackdrop()
     {
@@ -55,11 +79,31 @@ public partial class DefaultWindow : Window, IWindow
             return;
         }
 
-        var color = ThemeBackgroundColor();
-        Background = new SolidColorBrush(
-            level == WindowTransparencyLevel.Blur
-                ? new Color(0xA8, color.R, color.G, color.B)
-                : new Color(0xFF, color.R, color.G, color.B));
+        // Blur : teinte translucide par-dessus le flou du compositeur.
+        // Opaque : même clé que le fond de la DefaultWindow WPF
+        // (Header.Active.Background, #0c0c16 en sombre — bleu-noir profond).
+        if (level == WindowTransparencyLevel.Blur)
+        {
+            var tint = ThemeBackgroundColor();
+            Background = new SolidColorBrush(new Color(0xA8, tint.R, tint.G, tint.B));
+            return;
+        }
+
+        var color = OpaqueBackgroundColor();
+        Background = new SolidColorBrush(new Color(0xFF, color.R, color.G, color.B));
+    }
+
+    Color OpaqueBackgroundColor()
+    {
+        if (this.TryFindResource("HLab.Colors.Header.Active.Background", ActualThemeVariant, out var value)
+            && value is Color header)
+            return header;
+
+        if (this.TryFindResource("HLab.Colors.Background", ActualThemeVariant, out value)
+            && value is Color hlab)
+            return hlab;
+
+        return ThemeBackgroundColor();
     }
 
     Color ThemeBackgroundColor()
@@ -73,6 +117,42 @@ public partial class DefaultWindow : Window, IWindow
             return hlab;
 
         return Color.FromRgb(0x20, 0x20, 0x20);
+    }
+
+    /// <summary>
+    /// La barre de titre système est masquée (ExtendClientAreaToDecorationsHint) :
+    /// le déplacement se fait en tirant la bande haute de la fenêtre, comme la
+    /// ChromeWindow WPF. Double-clic : bascule maximisé/normal.
+    /// </summary>
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
+        if (e.GetPosition(this).Y > DragStripHeight) return;
+        if (IsInteractive(e.Source)) return;
+
+        if (e.ClickCount == 2)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            return;
+        }
+
+        BeginMoveDrag(e);
+    }
+
+    const double DragStripHeight = 40.0;
+
+    bool IsInteractive(object? source)
+    {
+        var visual = source as Visual;
+        while (visual is not null && !ReferenceEquals(visual, this))
+        {
+            if (visual is Button or ToggleButton or TextBox or ComboBox or MenuItem or TabItem or ScrollBar or Slider)
+                return true;
+            visual = visual.GetVisualParent();
+        }
+        return false;
     }
 
     public void SetOwner(IView owner)
