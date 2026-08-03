@@ -103,6 +103,10 @@
             <!-- Équivalent MahApps SystemControlErrorTextForeground : jaune en
                  sombre (le rouge sur gris est illisible). -->
             <SolidColorBrush x:Key="HLab.Brushes.ErrorText" Color="#FFFFD700"/>
+
+            <!-- Dock.Avalonia : fond des zones de docking aligné sur le thème. -->
+            <Color x:Key="RegionColor">#FF252525</Color>
+            <Color x:Key="AcrylicFallbackColor">#FF1F1F22</Color>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="{x:Static ThemeVariant.Light}">
@@ -165,6 +169,9 @@
             <SolidColorBrush x:Key="HLab.Brushes.Row.Alternate" Color="#08000000"/>
 
             <SolidColorBrush x:Key="HLab.Brushes.ErrorText" Color="#FFC50500"/>
+
+            <Color x:Key="RegionColor">#FFFAFAFA</Color>
+            <Color x:Key="AcrylicFallbackColor">#FFE2E2E5</Color>
         </ResourceDictionary>
 
     </ResourceDictionary.ThemeDictionaries>

@@ -5,35 +5,56 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:icons="clr-namespace:HLab.Icons.Avalonia.Icons;assembly=HLab.Icons.Avalonia"
              xmlns:lang="clr-namespace:HLab.Localization.Avalonia.Lang;assembly=HLab.Localization.Avalonia"
+             xmlns:core="clr-namespace:Dock.Model.Core;assembly=Dock.Model"
+             xmlns:local="clr-namespace:HLab.Mvvm.Application.Avalonia"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
 
-            <!-- Fond gris des documents : parité avec le thème AvalonDock du WPF
-                 (sans lui, le noir de la fenêtre rend les fiches trop contrastées). -->
-            <TabControl Background="{DynamicResource HLab.Brushes.ThemeBackground}"
-                        ItemsSource="{Binding Documents}" SelectedItem="{Binding ActiveDocument, Mode=TwoWay}">
-                <TabControl.Styles>
-                    <!-- Les items sont des VUES : un ContentPresenter n'applique pas de
-                         template à un Control (et la vue est déjà affichée dans le contenu).
-                         L'entête est donc le DataContext de la vue (son ViewModel), templaté
-                         comme le DocumentHeaderTemplate d'AvalonDock côté WPF. -->
-                    <Style Selector="TabItem">
-                        <Setter Property="Header" Value="{Binding $self.Content.DataContext}"/>
-                        <Setter Property="HeaderTemplate">
-                            <DataTemplate>
-                                <StackPanel Orientation="Vertical">
-                                    <StackPanel Orientation="Horizontal">
-                                        <icons:IconView IconMaxHeight="16" MaxHeight="16" Path="{Binding IconPath}"/>
-                                        <lang:LocalizedLabel Margin="10,0,0,0" FontSize="14" FontWeight="Bold" Text="{Binding Header}"/>
-                                    </StackPanel>
-                                    <lang:LocalizedLabel FontSize="12" FontStyle="Italic"
-                                        Text="{Binding SubTitle}"
-                                        IsVisible="{Binding SubTitle, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </Setter>
-                    </Style>
-                </TabControl.Styles>
-            </TabControl>
+    <UserControl.Resources>
+        <ControlRecycling x:Key="HLab.ControlRecycling"/>
+    </UserControl.Resources>
+
+    <!-- Dock.Avalonia remplace le TabControl (et l'AvalonDock du WPF) : docking
+         complet, sortie des documents en fenêtres flottantes multi-écrans.
+         L'adaptation Documents/ActiveDocument <-> dockables est dans le
+         code-behind ; le contrat du DocumentPresenterViewModel est inchangé. -->
+
+    <UserControl.DataTemplates>
+        <!-- Le contenu d'un ViewDocument est la vue déjà construite : l'hôte
+             gère le re-parentage (Dock ré-instancie ce template à chaque
+             activation d'onglet, la vue est une instance unique). -->
+        <DataTemplate DataType="{x:Type local:ViewDocument}">
+            <local:ViewDocumentHost/>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <UserControl.Styles>
+        <!-- Entête d'onglet : même représentation que précédemment — icône,
+             titre semi-gras, sous-titre atténué sur une ligne. La croix de
+             fermeture et le drag sont fournis par Dock. Context = DataContext
+             de la vue (ViewModel du document). -->
+        <Style Selector="DocumentControl">
+            <Setter Property="HeaderTemplate">
+                <DataTemplate DataType="{x:Type core:IDockable}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <icons:IconView VerticalAlignment="Center" IconMaxHeight="16" MaxHeight="16" Path="{Binding Context.IconPath}"/>
+                        <StackPanel Margin="8,0,0,0" VerticalAlignment="Center" MaxWidth="220">
+                            <lang:LocalizedLabel FontSize="12" FontWeight="SemiBold" Text="{Binding Context.Header}"/>
+                            <lang:LocalizedLabel FontSize="11" FontStyle="Italic" Opacity="0.65"
+                                Text="{Binding Context.SubTitle}"
+                                IsVisible="{Binding Context.SubTitle, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </DataTemplate>
+            </Setter>
+        </Style>
+    </UserControl.Styles>
+
+    <!-- ControlRecycling : Dock réutilise LE contrôle créé pour un dockable au
+         lieu de ré-instancier le template à chaque activation/flottement — nos
+         vues sont des instances uniques et ne supportent pas d'être recréées. -->
+    <DockControl x:Name="PART_Dock"
+                 Background="{DynamicResource HLab.Brushes.ThemeBackground}"
+                 ControlRecyclingDataTemplate.ControlRecycling="{StaticResource HLab.ControlRecycling}"/>
 
 </UserControl>

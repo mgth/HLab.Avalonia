@@ -58,10 +58,12 @@ public class AvaloniaDocumentService(
         {
             if (!ReferenceEquals(model, GetModel(document))) continue;
 
+            Console.Error.WriteLine($"[Dock] open: déjà ouvert ({model.GetType().Name}) -> activation");
             presenter.ActiveDocument = document;
             return;
         }
 
+        Console.Error.WriteLine($"[Dock] open: nouveau ({model.GetType().Name})");
         presenter.Documents.Add(view);
         MessageBus.Publish(GetMessage(view));
         presenter.ActiveDocument = view as Control;

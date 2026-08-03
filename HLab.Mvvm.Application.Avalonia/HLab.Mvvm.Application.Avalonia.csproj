@@ -11,6 +11,12 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Dock.Avalonia" Version="12.1.0" />
+    <PackageReference Include="Dock.Model.Mvvm" Version="12.1.0" />
+    <PackageReference Include="Dock.Controls.Recycling" Version="12.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\HLab.Core\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
     <ProjectReference Include="..\..\HLab.Core\HLab.Mvvm.Application\HLab.Mvvm.Application.csproj" />
     <ProjectReference Include="..\..\HLab.Core\HLab.Mvvm.ReactiveUI\HLab.Mvvm.ReactiveUI.csproj" />
