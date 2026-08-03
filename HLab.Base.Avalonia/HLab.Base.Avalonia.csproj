@@ -10,12 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.1.0" />
+    <PackageReference Include="Avalonia" Version="12.1.1" />
+    <!-- DataGrid publishes on its own cadence and has no 12.1.1; it asks for
+         Avalonia >= 12.1.0, which 12.1.1 satisfies. -->
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.0" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
-    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="12.1.1" />
     <PackageReference Include="ReactiveUI.Avalonia" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Skia" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Skia" Version="12.1.1" />
     <PackageReference Include="MessageBox.Avalonia" Version="12.0.0" />
     <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.13" />
     <PackageReference Include="System.Management" Version="10.0.0" />
