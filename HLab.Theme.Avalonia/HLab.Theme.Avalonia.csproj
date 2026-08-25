@@ -4,11 +4,16 @@
     <TargetFramework>net10.0</TargetFramework>
 	<AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
+    <!-- HLab.Styles.axaml has Selector="DataGrid" and friends; the compiler
+         has to resolve those types. Same cadence caveat as elsewhere: no
+         12.1.1 exists, and 12.1.0 asks for Avalonia >= 12.1.0. -->
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.0" />
+    <!-- WMI watcher in ThemeHelper (Windows dark-mode change events). -->
+    <PackageReference Include="System.Management" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
